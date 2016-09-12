@@ -39,6 +39,7 @@ const defaultRange = {
   label: null,
   fromHandle: -1, //by default from left border to first handle
   className: null,
+  includeHandles: false,
   left: 0,
   top: 0,
   x: 0,
@@ -60,8 +61,8 @@ const defaultConfig = {
   handles: null,
   ranges: null,
   spring: {
-    stiffness: 600,
-    damping: 25, // how much spring goes back and forth
+    stiffness: 1000,
+    damping: 40, // how much spring goes back and forth
     precision: 0.01,
   }
 };
@@ -397,6 +398,11 @@ class SliderInput extends React.Component {
     if (fromHandleIndex > -1) {
       let fromHandle = map.getIn(['handles', fromHandleIndex]);
       rangePositionStart = this.vertical() ? fromHandle.get('y') : fromHandle.get('x');
+      if (range.get('includeHandles')) {
+        rangePositionStart -= handleLength / 2;
+      } else {
+        rangePositionStart += handleLength / 2;
+      }
     }
     let toHandleIndex = 0;
     if (fromHandleIndex >= 0) {
@@ -405,10 +411,14 @@ class SliderInput extends React.Component {
     let toHandle = map.getIn(['handles', toHandleIndex]);
     if (toHandle) {
       rangePositionEnd = this.vertical() ? toHandle.get('y') : toHandle.get('x');
+      if (range.get('includeHandles')) {
+        rangePositionEnd += handleLength / 2;
+      } else {
+        rangePositionEnd -= handleLength / 2;
+      }
     }
-
-    let rangePosition = rangePositionStart;// + handleLength / 2;
-    let rangeLength = rangePositionEnd - rangePositionStart;// - handleLength;
+    let rangePosition = rangePositionStart;
+    let rangeLength = rangePositionEnd - rangePositionStart;
 
     if (this.vertical()) {
       range = range.withMutations((st) => {
@@ -682,6 +692,7 @@ SliderInput.propTypes = {
     label: React.PropTypes.string,
     fromHandle: React.PropTypes.number, //index of lower handle
     className: React.PropTypes.string,
+    includeHandles: React.PropTypes.bool,
   })),
   // Shorthand for range config
   range: React.PropTypes.oneOfType([
