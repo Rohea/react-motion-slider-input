@@ -3,14 +3,14 @@ import React from 'react';
 class Step extends React.Component {
   render() {
     const styles = {
-      left: `${this.props.left} px`,
-      top: `${this.props.top} px`,
+      left: `${this.props.left}px`,
+      top: `${this.props.top}px`,
       display: (this.props.isVisible) ? 'block' : 'none',
       position: 'absolute',
     };
 
     const className = 'ReactMotionSliderInput-Step' +
-      ((this.props.inRange !== null) ? 'ReactMotionSliderInput-in-range ReactMotionSliderInput-in-range-' + this.props.inRange : '') +
+      ((this.props.inRange !== null) ? ' ReactMotionSliderInput-in-range ReactMotionSliderInput-in-range-' + this.props.inRange : '') +
       ((this.props.className) ? ' ' + this.props.className : '');
     return (
       <span ref='span' className={className} style={styles}>
