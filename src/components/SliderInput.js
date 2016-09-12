@@ -255,8 +255,7 @@ class SliderInput extends React.Component {
     const numSteps = map.get('steps').size;
 
     const stepCenterGauge = trackGauge / 2;
-    const stepCenterLength = ( stepIndex * ((trackLength - stepLength) / (numSteps-1)) ) + (stepLength / 2);
-    //const stepCenterLength = ( stepIndex * ((trackLength) / (numSteps-1)) ); // steps over track endings
+    const stepCenterLength = ( stepIndex * ((trackLength) / (numSteps-1)) ); // steps over track endings
 
     const stepPositionGauge = stepCenterGauge - (stepGauge / 2);
     const stepPositionLength = stepCenterLength - (stepLength / 2);
@@ -318,12 +317,13 @@ class SliderInput extends React.Component {
         let closestStep = this.findClosest(steps, movingHandlePosition);
         handleCenterLength = this.vertical() ? closestStep.get('y') : closestStep.get('x');
       }
+
       // Prevent going over borders
-      if (movingHandlePosition < (0 + handleLength / 2)) {
-        handleCenterLength = 0 + handleLength / 2;
+      if (movingHandlePosition < 0) {
+        handleCenterLength = 0;
       }
-      if (movingHandlePosition > (trackLength - handleLength / 2)) {
-        handleCenterLength = trackLength - (handleLength / 2);
+      if (movingHandlePosition > trackLength) {
+        handleCenterLength = trackLength;
       }
       // Prevent running over next handle
       if (map.hasIn(['handles', (handleIndex + 1)])) {
@@ -341,7 +341,10 @@ class SliderInput extends React.Component {
           handleCenterLength = prevHandlePosition + handleLength;
         }
       }
+
     } else {
+
+      // If there are steps.
       if (steps && steps.size > 0) {
         // Find matching step by value
         let closestStep = null;
