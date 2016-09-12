@@ -3,8 +3,8 @@ import React from 'react';
 class Step extends React.Component {
   render() {
     const styles = {
-      left: this.props.left+'px',
-      top: this.props.top+'px',
+      left: this.props.left + 'px',
+      top: this.props.top + 'px',
       display: (this.props.isVisible) ? 'block' : 'none',
       position: 'absolute',
     }

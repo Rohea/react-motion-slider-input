@@ -14,9 +14,10 @@ class Track extends React.Component {
         onClick={this.onClick.bind(this)}
         style={{
           position: 'absolute',
-        }}>
+        }}
+      >
         <div className='ReactMotionSliderInput-Track-Inner'>
-          {this.props.children}          
+          {this.props.children}
         </div>
       </div>
     );
@@ -24,7 +25,7 @@ class Track extends React.Component {
 }
 Track.propTypes = {
   onClick: React.PropTypes.func.isRequired,
-}
+};
 
 
 export default Track;

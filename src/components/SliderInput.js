@@ -1,6 +1,6 @@
 import React from 'react';
 import Immutable from 'immutable';
-//import Dimensions from 'react-dimensions';
+// import Dimensions from 'react-dimensions';
 
 import Track from './Track';
 import Step from './Step';
@@ -37,7 +37,7 @@ const defaultRange = {
   id: null,
   index: 0,
   label: null,
-  fromHandle: -1, //by default from left border to first handle
+  fromHandle: -1, // by default from left border to first handle
   className: null,
   left: 0,
   top: 0,
@@ -45,7 +45,7 @@ const defaultRange = {
   y: 0,
   width: 0,
   height: 0,
-}
+};
 
 const defaultConfig = {
   orientation: 'horizontal',
@@ -56,14 +56,13 @@ const defaultConfig = {
   min: 1,
   max: 10,
   range: false,
-  steps: null,
   handles: null,
   ranges: null,
   spring: {
     stiffness: 600,
     damping: 25, // how much spring goes back and forth
     precision: 0.01,
-  }
+  },
 };
 
 // default for this.state
@@ -72,10 +71,10 @@ const initialState = {
     width: 0,
     height: 0,
   },
-  handles: [ defaultHandle ],
+  handles: [defaultHandle],
   handleLength: 0,
   handleGauge: 0,
-  steps: [ defaultStep ],
+  steps: [defaultStep],
   stepLength: 0,
   stepGauge: 0,
   ranges: [],
