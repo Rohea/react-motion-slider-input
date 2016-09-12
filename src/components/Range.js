@@ -19,10 +19,10 @@ class Range extends React.Component {
           <span
             ref='span'
             style={{
-              left: `${value.left} px`,
-              top: `${value.top} px`,
-              width: `${value.width} px`,
-              height: `${value.height} px`,
+              left: `${value.left}px`,
+              top: `${value.top}px`,
+              width: `${value.width}px`,
+              height: `${value.height}px`,
               position: 'absolute',
               display: 'block',
             }}
