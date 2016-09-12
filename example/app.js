@@ -16,7 +16,8 @@ class App extends React.Component {
       complexSlider: {
         handle1: 4,
         handle2: 11,
-        handle3: 18,
+        handle3: 14,
+        handle4: 18
       },
     };
   }
@@ -72,8 +73,8 @@ class App extends React.Component {
           handles={handles} 
           ranges={ranges}
           spring={{
-            stiffness: 1000,
-            damping: 40, // how much spring goes back and forth
+            stiffness: 600,
+            damping: 20, // how much spring goes back and forth
             precision: 0.01,
           }}/>
       </div>
@@ -115,20 +116,35 @@ class App extends React.Component {
         value: this.state.complexSlider.handle3,
         label: "Handle3",
         className: "handle-3",
+      },
+      {
+        id: "handle4",
+        value: this.state.complexSlider.handle4,
+        label: "Handle4",
+        className: "handle-4",
       }
     ];
     ranges = [
       {
         id: "range1",
         label: "Range1",
-        fromHandle: 0,
+        fromHandle: -1,
         className: 'range-1',
+        includeHandles: true,
       },
       {
         id: "range2",
         label: "Range2",
-        fromHandle: 2,
+        fromHandle: 1,
         className: 'range-2',
+        includeHandles: true,
+      },
+      {
+        id: "range3",
+        label: "Range2",
+        fromHandle: 3,
+        className: 'range-2',
+        includeHandles: false,
       },
     ];
     return(
