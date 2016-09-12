@@ -1,0 +1,137 @@
+.container {
+  display: block;
+  position: relative;
+  float: left;
+  width: 50%;
+  margin: 3em 10%;
+}
+
+
+#range {
+  .range-example {
+    .ReactMotionSliderInput-Track {
+      height: 4px;
+      background-color: #cccccc;
+      border-radius: 4px;
+      box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
+    }
+    .ReactMotionSliderInput-Step {
+      background-color: transparent;
+      width: 8.3%;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      &.ReactMotionSliderInput-in-range .ReactMotionSliderInput-Step-Inner {
+        background-color: #666666;
+      }
+      .ReactMotionSliderInput-Step-Inner {
+        width: 13px;
+        height: 13px;
+        border-radius: 6px;
+        font-size: 0;
+        display: inline-block;
+        margin-top: 4px;
+        background-color: #cccccc;
+        color: transparent;
+        transition: transform 0.2s ease-in-out;
+      }
+      &:hover {
+        .ReactMotionSliderInput-Step-Inner {
+          transform: scale(1.5);
+        }
+      }
+
+      .ReactMotionSliderInput-Step-Label {
+        position: absolute;
+        margin: 0 auto;
+        display: block;
+        width: 100%;
+        border-radius: 6px;
+        font-size: 10px;
+        color: black;
+        background-color: transparent;
+      }
+    }
+    .ReactMotionSliderInput-Handle {
+      background-color: black;
+      width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      .ReactMotionSliderInput-Handle-Inner {
+        display: none;
+      }
+    }
+  }
+
+}
+
+#complex {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  .preview {
+    display: block;
+    margin: 10px 0;
+  }
+  .complex-example {
+    .ReactMotionSliderInput-Track {
+      height: 26px;
+      background-color: #cccccc;
+      border-radius: 3px;
+      box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
+    }
+    .ReactMotionSliderInput-Step {
+      width: 5%;
+      height: 26px;
+      line-height: 26px;
+      font-size: 12px;
+      //border-radius: 2px;
+      background-color: #cccccc;
+      &.step-green {
+        background-color: #00b261;
+      }
+      &.step-yellow {
+        background-color: #FCAC00;
+      }
+      &.step-red {
+        background-color: #da0e4e;
+      }
+      &:first-of-type {
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+      }
+      &:last-of-type {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+      }
+    }
+    .ReactMotionSliderInput-Handle {
+      width: 5%;
+      background-color: transparent;
+      height: 34px;
+      border-radius: 10px;
+      z-index: 3;
+      .ReactMotionSliderInput-Handle-Inner {
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 6px;
+        box-sizing: border-box;
+        height: 100%;
+        width: 100%;
+        border: 4px solid rgba(0,0,0,1);
+      }
+    }
+    .ReactMotionSliderInput-Range {
+      z-index: 2;
+      border-left: 10px solid none;
+      box-sizing: border-box;
+      background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%);
+      background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 100%);
+      background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#80000000',GradientType=0 );
+
+
+    }
+
+  }
+}
