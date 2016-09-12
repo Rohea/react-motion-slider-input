@@ -20,6 +20,7 @@ class Handle extends React.Component {
     this.onTouchCancel = this.onTouchCancel.bind(this);
   }
 
+  /* global document:false */
   componentDidUpdate(newProps, newState) {
     if (this.state.isDragging && !newState.isDragging) {
       document.addEventListener('mousemove', this.onMouseMove);
@@ -41,7 +42,7 @@ class Handle extends React.Component {
     // only left mouse button
     if (e.button !== 0) return;
 
-    const rect = this.refs['motion'].refs['button'].getBoundingClientRect();
+    const rect = this.refs.motion.refs.button.getBoundingClientRect();
     const deltaX = e.pageX - rect.left;
     const deltaY = e.pageY - rect.top;
     this.setState({
@@ -55,25 +56,25 @@ class Handle extends React.Component {
   }
 
   onMouseMove(e) {
-    if (! this.state.isDragging) return;
+    if (!this.state.isDragging) return;
     e.stopPropagation();
     e.preventDefault();
     this.props.onMove(this.props.index, e.pageX, e.pageY, this.state.deltaX, this.state.deltaY);
   }
 
   onMouseUp(e) {
-     this.setState({ isDragging: false });
-     e.stopPropagation();
-     e.preventDefault();
-     this.props.onRelease(this.props.index);
+    this.setState({ isDragging: false });
+    e.stopPropagation();
+    e.preventDefault();
+    this.props.onRelease(this.props.index);
   }
 
   onTouchStart(e) {
-    console.log("touch detected");
+    console.log('touch detected');
     console.log(e);
     console.log(e.touches[0].clientX);
 
-    const rect = this.refs['motion'].refs['button'].getBoundingClientRect();
+    const rect = this.refs.motion.refs.button.getBoundingClientRect();
     const deltaX = e.touches[0].clientX - rect.left;
     const deltaY = e.touches[0].clientY - rect.top;
     this.setState({
@@ -87,7 +88,7 @@ class Handle extends React.Component {
   }
 
   onTouchMove(e) {
-    if (! this.state.isDragging) return;
+    if (!this.state.isDragging) return;
     e.stopPropagation();
     e.preventDefault();
     this.props.onMove(this.props.index, e.touches[0].clientX, e.touches[0].clientY, this.state.deltaX, this.state.deltaY);
@@ -101,13 +102,12 @@ class Handle extends React.Component {
   }
 
   onTouchCancel(e) {
-    console.log("Touch cancelled. What should we do?")
+    console.log('Touch cancelled. What should we do?');
   }
 
   render() {
-
     return (
-      <Motion ref='motion' defaultStyle={{left: 0, top: 0}} style={{left: spring(this.props.left, this.props.spring), top: spring(this.props.top, this.props.spring)}}>
+      <Motion ref='motion' defaultStyle={{ left: 0, top: 0 }} style={{ left: spring(this.props.left, this.props.spring), top: spring(this.props.top, this.props.spring) }}>
 
         {value =>
           <button
@@ -118,11 +118,12 @@ class Handle extends React.Component {
             onTouchMove={this.onTouchMove}
             className='ReactMotionSliderInput-Handle'
             style={{
-              left: value.left+'px',
-              top: value.top+'px',
+              left: `${value.left}px`,
+              top: `${value.top}px`,
               position: 'absolute',
               display: 'block',
-            }}>
+            }}
+          >
             <span className='ReactMotionSliderInput-Handle-Inner'>
               {this.props.value}
             </span>
@@ -155,6 +156,6 @@ Handle.propTypes = {
     precision: React.PropTypes.number,
   }).isRequired,
   label: React.PropTypes.string,
-}
+};
 
 export default Handle;

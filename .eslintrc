@@ -1,7 +1,11 @@
 {
   "extends": "airbnb",
   "rules": {
+    "max-len": [1, 180, 2, { "ignoreComments": true }],
     "jsx-quotes": ["error", "prefer-single"],
-    "react/jsx-filename-extension": "off"
+    "react/jsx-filename-extension": "off",
+    "new-cap": [2, {
+        "capIsNewExceptions": ["Immutable.Map", "Immutable.Set", "Immutable.List"]
+    }]
   }
 }
