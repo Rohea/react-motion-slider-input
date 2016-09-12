@@ -95,16 +95,14 @@ const initialState = {
  */
 const prepareSteps = (config) => {
   // Create steps if they are defined
-  const steps = [];
+  let steps = [];
   if (config.steps && config.steps.constructor === Array) {
     // use steps array provided as a prop
-    config.steps.map((step, i) => {
-      steps.push(Object.assign({}, defaultStep, {
-        id: (step.id) ? step.id : i,
-        index: i,
-        isVisible: true,
-      }, step));
-    });
+    steps = config.steps.map((step, i) => Object.assign({}, defaultStep, {
+      id: (step.id) ? step.id : i,
+      index: i,
+      isVisible: true,
+    }, step));
   } else {
     // create steps based on min, max and step values
     for (let i = config.min; i <= config.max; i += config.step) {
@@ -112,7 +110,7 @@ const prepareSteps = (config) => {
         id: i,
         index: i,
         value: i,
-        label: i + '',
+        label: i.toString(),
         isVisible: config.showSteps,
       }));
     }
@@ -125,16 +123,11 @@ const prepareSteps = (config) => {
  */
 const prepareHandles = (config) => {
   // Create handles
-  let handles = Immutable.fromJS([defaultHandle]);
+  let handles = [defaultHandle];
   if (config.handles && config.handles.length > 0) {
-    handles = Immutable.List();
-    config.handles.map((data, i) => {
-      handles = handles.push(Immutable.fromJS(Object.assign({}, defaultHandle, data, { index: i })));
-    });
+    handles = config.handles.map((data, i) => Object.assign({}, defaultHandle, data, { index: i }));
   } else if (config.value) {
-    handles = handles.setIn([0, 'value'], config.value);
-  } else {
-    console.error('Should not end up here');
+    handles[0].value = config.value;
   }
   return handles;
 };
@@ -143,11 +136,9 @@ const prepareHandles = (config) => {
  * Helper for preparing range objects
  */
 const prepareRanges = (config) => {
-  const ranges = [];
+  let ranges = [];
   if (config.ranges && config.ranges.length > 0) {
-    config.ranges.map((data, i) => {
-      ranges.push(Object.assign({}, defaultRange, data, { index: i }));
-    });
+    ranges = config.ranges.map((data, i) => Object.assign({}, defaultRange, data, { index: i }));
   } else if (config.range) {
     if (config.range === true || config.range === 'below') {
       ranges.push(Object.assign({}, defaultRange));
@@ -174,18 +165,18 @@ class SliderInput extends React.Component {
     const steps = prepareSteps(this.config);
     map = map.set('steps', Immutable.fromJS(steps));
     const handles = prepareHandles(this.config);
-    map = map.set('handles', handles);
+    map = map.set('handles', Immutable.fromJS(handles));
     const ranges = prepareRanges(this.config);
     map = map.set('ranges', Immutable.fromJS(ranges));
     // Set map to initial state
-    this.state = { map: map };
+    this.state = { map };
   }
 
   /* global window:false */
   componentDidMount() {
     window.addEventListener('resize', this.onWindowResize);
     const map = this.updatePositions(this.state.map);
-    this.setState({ map: map });
+    this.setState({ map });
   }
   /*
   componentWillReceiveProps(newProps) {
@@ -193,69 +184,127 @@ class SliderInput extends React.Component {
     this.setState({ map: map });
   }
   */
-
   componentWillUnmount() {
     window.removeEventListener('resize', this.onWindowResize);
   }
 
+  onWindowResize() {
+    const map = this.updatePositions(this.state.map);
+    this.setState({ map });
+  }
+
+  onHandleCatch(index, eventX, eventY, deltaX, deltaY) {
+    this.updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY);
+  }
+
+  onHandleMove(index, eventX, eventY, deltaX, deltaY) {
+    this.updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY);
+  }
+
+  onHandleRelease(index) {
+    let map = this.state.map;
+    // Calculate new value for handle by finding closest step to handle
+    const movingHandlePosition = map.get('movingHandlePosition');
+    const closestStep = this.findClosest(map.get('steps'), movingHandlePosition);
+    // Snap to closest step
+    map = map.setIn(['handles', index, 'value'], closestStep.get('value'));
+    // Reset state
+    map = map.withMutations((mp) => {
+      mp.set('isHandleMoving', false)
+        .set('movingHandleIndex', -1)
+        .set('movingHandlePosition', null);
+    });
+    // Single handle position
+    const handle = this.calculateHandlePosition(index, map);
+    map = map.setIn(['handles', index], handle);
+
+    // Range positions
+    const ranges = map.get('ranges').map((range, i) => this.calculateRangePosition(i, map));
+    map = map.set('ranges', ranges);
+    // Is step in range?
+    const steps = map.get('steps').map((step, i) => this.calculateIfStepInRange(i, map));
+    map = map.set('steps', steps);
+    this.triggerChange(map);
+    this.setState({ map });
+  }
+
+  onTrackClick(eventX, eventY) {
+    let map = this.state.map;
+    const trackStart = this.vertical() ? this.state.map.getIn(['track', 'top']) : this.state.map.getIn(['track', 'left']);
+    const eventPos = this.vertical() ? eventY : eventX;
+    const closestHandle = this.findClosest(map.get('handles'), (eventPos - trackStart));
+    const closestStep = this.findClosest(map.get('steps'), (eventPos - trackStart));
+    map = map.setIn(['handles', closestHandle.get('index'), 'value'], closestStep.get('value'));
+    // Handle positions
+    const handles = map.get('handles').map((handle, i) => this.calculateHandlePosition(i, map));
+    map = map.set('handles', handles);
+    // Range positions
+    const ranges = map.get('ranges').map((range, i) => this.calculateRangePosition(i, map));
+    map = map.set('ranges', ranges);
+    // Is step in range?
+    const steps = map.get('steps').map((step, i) => this.calculateIfStepInRange(i, map));
+    map = map.set('steps', steps);
+
+    this.triggerChange(map);
+    this.setState({ map });
+  }
+
   updatePositions(map) {
-    if (!map) map = this.state.map;
+    let m = map || this.state.map;
     // Container size
-    const containerRect = this.refs['container'].getBoundingClientRect();
-    map = map.set('container', Immutable.fromJS({
+    const containerRect = this.refs.container.getBoundingClientRect();
+    m = m.set('container', Immutable.fromJS({
       width: containerRect.width,
       height: containerRect.height,
     }));
     // Track dimensions and position
-    const trackRect = this.refs['track'].refs['track-div'].getBoundingClientRect();
-    map = map.set('track', Immutable.fromJS({
+    const trackRect = this.refs.track.refs['track-div'].getBoundingClientRect();
+    m = m.set('track', Immutable.fromJS({
       left: trackRect.left,
       top: trackRect.top,
       length: this.vertical() ? trackRect.height : trackRect.width,
-      gauge: this.vertical() ? trackRect.width : trackRect.height
+      gauge: this.vertical() ? trackRect.width : trackRect.height,
     }));
     // Step dimensions
     if (this.refs['step-0']) {
-      const stepRect = this.refs['step-0'].refs['span'].getBoundingClientRect();
-      map = map.set('stepLength', this.vertical() ? stepRect.height : stepRect.width);
-      map = map.set('stepGauge', this.vertical() ? stepRect.width : stepRect.height);
+      const stepRect = this.refs['step-0'].refs.span.getBoundingClientRect();
+      m = m.set('stepLength', this.vertical() ? stepRect.height : stepRect.width);
+      m = m.set('stepGauge', this.vertical() ? stepRect.width : stepRect.height);
     }
     // Step positions
-    map.get('steps').map((step, i) => {
-      map = this.calculateStepPosition(i, map);
-    });
+    let steps = m.get('steps').map((step, i) => this.calculateStepPosition(i, m));
+    m = m.set('steps', steps);
+
     // Handle dimensions
-    const handleRect = this.refs['handle-0'].refs['motion'].refs['button'].getBoundingClientRect(); // There's always at least one handle
-    map = map.set('handleLength', this.vertical() ? handleRect.height : handleRect.width);
-    map = map.set('handleGauge', this.vertical() ? handleRect.width : handleRect.height);
+    const handleRect = this.refs['handle-0'].refs.motion.refs.button.getBoundingClientRect(); // There's always at least one handle
+    m = m.set('handleLength', this.vertical() ? handleRect.height : handleRect.width);
+    m = m.set('handleGauge', this.vertical() ? handleRect.width : handleRect.height);
     // Handle positions
-    map.get('handles').map((handle, i) => {
-      map = this.calculateHandlePosition(i, map);
-    });
+    const handles = m.get('handles').map((handle, i) => this.calculateHandlePosition(i, m));
+    m = m.set('handles', handles);
     // Range positions
-    map.get('ranges').map((range, i) => {
-      map = this.calculateRangePosition(i, map);
-    });
+    const ranges = m.get('ranges').map((range, i) => this.calculateRangePosition(i, m));
+    m = m.set('ranges', ranges);
     // Is step in range?
-    map.get('steps').map((step, i) => {
-      map = this.calculateIfStepInRange(i, map);
-    });
+    steps = m.get('steps').map((step, i) => this.calculateIfStepInRange(i, m));
+    m = m.set('steps', steps);
+
     // Return a map
-    return map;
+    return m;
   }
 
   calculateStepPosition(stepIndex, map) {
     let step = map.getIn(['steps', stepIndex]);
-    const trackStart = this.vertical() ? map.getIn(['track', 'top']) : map.getIn(['track', 'left']);
+    // const trackStart = this.vertical() ? map.getIn(['track', 'top']) : map.getIn(['track', 'left']);
     const trackLength = map.getIn(['track', 'length']);
     const trackGauge = map.getIn(['track', 'gauge']);
     const stepLength = map.get('stepLength');
     const stepGauge = map.get('stepGauge');
 
-    const numSteps = map.get('steps').size;
+    const numSteps = map.get('steps') ? map.get('steps').size : 0;
 
     const stepCenterGauge = trackGauge / 2;
-    const stepCenterLength = ( stepIndex * ((trackLength) / (numSteps-1)) ); // steps over track endings
+    const stepCenterLength = (stepIndex * ((trackLength) / (numSteps - 1))); // steps over track endings
 
     const stepPositionGauge = stepCenterGauge - (stepGauge / 2);
     const stepPositionLength = stepCenterLength - (stepLength / 2);
@@ -265,18 +314,17 @@ class SliderInput extends React.Component {
         st.set('left', stepPositionGauge)
           .set('top', stepPositionLength)
           .set('x', stepCenterGauge)
-          .set('y', stepCenterLength)
+          .set('y', stepCenterLength);
       });
     } else {
       step = step.withMutations((st) => {
         st.set('left', stepPositionLength)
           .set('top', stepPositionGauge)
           .set('x', stepCenterLength)
-          .set('y', stepCenterGauge)
+          .set('y', stepCenterGauge);
       });
     }
-    map = map.setIn(['steps', stepIndex], step);
-    return map;
+    return step;
   }
 
   calculateIfStepInRange(stepIndex, map) {
@@ -284,20 +332,19 @@ class SliderInput extends React.Component {
     const stepCenter = this.vertical() ? step.get('y') : step.get('x');
     // Check if steps belongs to a range
     let inRange = null;
-    map.get('ranges').map((range, i) => {
-      let rangeCenterStart = this.vertical() ? range.get('top') : range.get('left');
-      let rangeLength = this.vertical() ? range.get('height') : range.get('width');
-      let rangeCenterEnd = rangeLength - rangeCenterStart;
+    map.get('ranges').map((range) => {
+      const rangeCenterStart = this.vertical() ? range.get('top') : range.get('left');
+      const rangeLength = this.vertical() ? range.get('height') : range.get('width');
+      // const rangeCenterEnd = rangeLength - rangeCenterStart;
       if (stepCenter >= rangeCenterStart && stepCenter <= (rangeLength + rangeCenterStart)) {
         inRange = range.get('index');
       }
     });
-    return map.setIn(['steps', stepIndex, 'inRange'], inRange);
+    return step.set('inRange', inRange);
   }
 
   calculateHandlePosition(handleIndex, map) {
     let handle = map.getIn(['handles', handleIndex]);
-    //const trackStart = this.vertical() ? map.getIn(['track', 'y']) : map.getIn(['track', 'x']);
     const trackLength = map.getIn(['track', 'length']);
     const trackGauge = map.getIn(['track', 'gauge']);
     const handleLength = map.get('handleLength');
@@ -309,12 +356,12 @@ class SliderInput extends React.Component {
     let handleCenterLength = null;
     const steps = map.get('steps');
 
-    if (isHandleMoving && movingHandleIndex == handleIndex) {
+    if (isHandleMoving && movingHandleIndex === handleIndex) {
       handleCenterLength = movingHandlePosition;
 
       if (steps && steps.size > 0) {
         // Snap to steps, if steps are available
-        let closestStep = this.findClosest(steps, movingHandlePosition);
+        const closestStep = this.findClosest(steps, movingHandlePosition);
         handleCenterLength = this.vertical() ? closestStep.get('y') : closestStep.get('x');
       }
 
@@ -327,7 +374,7 @@ class SliderInput extends React.Component {
       }
       // Prevent running over next handle
       if (map.hasIn(['handles', (handleIndex + 1)])) {
-        let nextHandle = map.getIn(['handles', (handleIndex + 1)]);
+        const nextHandle = map.getIn(['handles', (handleIndex + 1)]);
         const nextHandlePosition = this.vertical() ? nextHandle.get('y') : nextHandle.get('x');
         if (movingHandlePosition > (nextHandlePosition - handleLength)) {
           handleCenterLength = nextHandlePosition - handleLength;
@@ -335,27 +382,23 @@ class SliderInput extends React.Component {
       }
       // Prevent running over previous handle
       if (handleIndex > 0 && map.hasIn(['handles', (handleIndex - 1)])) {
-        let prevHandle = map.getIn(['handles', (handleIndex - 1)]);
+        const prevHandle = map.getIn(['handles', (handleIndex - 1)]);
         const prevHandlePosition = this.vertical() ? prevHandle.get('y') : prevHandle.get('x');
         if (movingHandlePosition < (prevHandlePosition + handleLength)) {
           handleCenterLength = prevHandlePosition + handleLength;
         }
       }
-
     } else {
-
       // If there are steps.
       if (steps && steps.size > 0) {
         // Find matching step by value
         let closestStep = null;
-        steps.map((step, stepIndex) => {
+        steps.map((step) => {
           if (step.get('value') === handle.get('value')) {
             closestStep = step;
           }
         });
-        //TODO: Prevent dropping handle on the wrong side of next/prev handle
-
-
+        // TODO: Prevent dropping handle on the wrong side of next/prev handle
         if (closestStep) {
           handleCenterLength = this.vertical() ? closestStep.get('y') : closestStep.get('x');
         }
@@ -373,18 +416,17 @@ class SliderInput extends React.Component {
         st.set('left', handlePositionGauge)
           .set('top', handlePositionLength)
           .set('x', handleCenterGauge)
-          .set('y', handleCenterLength)
+          .set('y', handleCenterLength);
       });
     } else {
       handle = handle.withMutations((st) => {
         st.set('left', handlePositionLength)
           .set('top', handlePositionGauge)
           .set('x', handleCenterLength)
-          .set('y', handleCenterGauge)
+          .set('y', handleCenterGauge);
       });
     }
-    map = map.setIn(['handles', handleIndex], handle);
-    return map;
+    return handle;
   }
 
   calculateRangePosition(rangeIndex, map) {
@@ -428,31 +470,17 @@ class SliderInput extends React.Component {
         st.set('left', 0)
           .set('top', rangePosition)
           .set('width', trackGauge)
-          .set('height', rangeLength)
+          .set('height', rangeLength);
       });
     } else {
       range = range.withMutations((st) => {
         st.set('left', rangePosition)
           .set('top', 0)
           .set('width', rangeLength)
-          .set('height', trackGauge)
+          .set('height', trackGauge);
       });
     }
-    map = map.setIn(['ranges', rangeIndex], range);
-    return map;
-  }
-
-  onWindowResize(event) {
-    const map = this.updatePositions(this.state.map);
-    this.setState({ map: map });
-  }
-
-  onHandleCatch(index, eventX, eventY, deltaX, deltaY) {
-    this.updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY);
-  }
-
-  onHandleMove(index, eventX, eventY, deltaX, deltaY) {
-    this.updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY);
+    return range;
   }
 
   /**
@@ -471,63 +499,22 @@ class SliderInput extends React.Component {
     let map = this.state.map.withMutations((mp) => {
       mp.set('isHandleMoving', true)
         .set('movingHandleIndex', index)
-        .set('movingHandlePosition', handlePosition)
+        .set('movingHandlePosition', handlePosition);
     });
-    map = this.calculateHandlePosition(index, map);
-    // Range positions
-    map.get('ranges').map((range, i) => {
-      map = this.calculateRangePosition(i, map);
-    });
-    // Is step in range?
-    map.get('steps').map((step, i) => {
-      map = this.calculateIfStepInRange(i, map);
-    });
-    this.setState({ map: map });
-  }
 
-  onHandleRelease(index) {
-    let map = this.state.map;
-    // Calculate new value for handle by finding closest step to handle
-    const movingHandlePosition = this.state.map.get('movingHandlePosition');
-    const closestStep = this.findClosest(map.get('steps'), movingHandlePosition);
-    map = map.setIn(['handles', index, 'value'], closestStep.get('value'));
-    // Reset state
-    map = map.withMutations((mp) => {
-      mp.set('isHandleMoving', false)
-        .set('movingHandleIndex', -1)
-        .set('movingHandlePosition', null)
-    });
-    map = this.calculateHandlePosition(index, map);
-    // Range positions
-    map.get('ranges').map((range, i) => {
-      map = this.calculateRangePosition(i, map);
-    });
-    // Is step in range?
-    map.get('steps').map((step, i) => {
-      map = this.calculateIfStepInRange(i, map);
-    });
-    this.triggerChange(map);
-    this.setState({ map: map });
-  }
+    // Single handle position
+    const handle = this.calculateHandlePosition(index, map);
+    map = map.setIn(['handles', index], handle);
 
-  onTrackClick(eventX, eventY) {
-    let map = this.state.map;
-    const trackStart = this.vertical() ? this.state.map.getIn(['track', 'top']) : this.state.map.getIn(['track', 'left']);
-    const eventPos = this.vertical() ? eventY : eventX;
-    const closestHandle = this.findClosest(map.get('handles'), (eventPos - trackStart));
-    const closestStep = this.findClosest(map.get('steps'), (eventPos - trackStart));
-    map = map.setIn(['handles', closestHandle.get('index'), 'value'], closestStep.get('value'));
-    map = this.calculateHandlePosition(closestHandle.get('index'), map);
     // Range positions
-    map.get('ranges').map((range, i) => {
-      map = this.calculateRangePosition(i, map);
-    });
+    const ranges = map.get('ranges').map((range, i) => this.calculateRangePosition(i, map));
+    map = map.set('ranges', ranges);
     // Is step in range?
-    map.get('steps').map((step, i) => {
-      map = this.calculateIfStepInRange(i, map);
-    });
+    const steps = map.get('steps').map((step, i) => this.calculateIfStepInRange(i, map));
+    map = map.set('steps', steps);
     this.triggerChange(map);
-    this.setState({ map: map });
+
+    this.setState({ map });
   }
 
   triggerChange(map) {
@@ -537,21 +524,21 @@ class SliderInput extends React.Component {
     handles.map((handle, handleIndex) => {
       // Find matching step
       let matchingStep = null;
-      map.get('steps').map((step, stepIndex) => {
+      map.get('steps').map((step) => {
         if (step.get('value') === handle.get('value')) {
           matchingStep = step;
         }
       });
       const key = handle.get('id') ? handle.get('id') : handle.get('index');
       data[key] = {
-        'value': handle.get('value'),
-        'step': {
+        value: handle.get('value'),
+        step: {
         },
       };
       if (matchingStep) {
         data[key].step = {
-          'id': matchingStep.get('id'),
-          'index': matchingStep.get('index'),
+          id: matchingStep.get('id'),
+          index: matchingStep.get('index'),
         };
       }
     });
@@ -559,8 +546,6 @@ class SliderInput extends React.Component {
       this.props.onChange(data);
       return;
     }
-    console.info('ReactMotionSliderInput: Please add onChange listener to get following data from the slider.');
-    console.info(data);
   }
 
   /**
@@ -583,12 +568,12 @@ class SliderInput extends React.Component {
   }
 
   vertical() {
-    return (this.props.orientation === 'vertical') ? true : false;
+    return this.props.orientation === 'vertical';
   }
 
   render() {
     const classNames = 'ReactMotionSliderInput ' +
-      (this.vertical() ? 'vertical' : 'horizontal')+
+      (this.vertical() ? 'vertical' : 'horizontal') +
       ((this.props.className) ? ' ' + this.props.className : '');
     return (
       <div className={classNames} ref='container'>
@@ -599,7 +584,7 @@ class SliderInput extends React.Component {
         >
 
           {this.state.map.get('ranges').map((range, i) => {
-            const key = 'react-motion-input-slider-range-'+i;
+            const key = `react-motion-input-slider-range-${i}`;
             return (
               <Range
                 ref={`range-${i}`}
@@ -676,7 +661,7 @@ SliderInput.propTypes = {
       value: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.number,
-      ])
+      ]),
     })),
   ]),
   // Define handles manually (overrides 'value' shorthand if set)
@@ -693,7 +678,7 @@ SliderInput.propTypes = {
   ranges: React.PropTypes.arrayOf(React.PropTypes.shape({
     id: React.PropTypes.string,
     label: React.PropTypes.string,
-    fromHandle: React.PropTypes.number, //index of lower handle
+    fromHandle: React.PropTypes.number, // index of lower handle
     className: React.PropTypes.string,
     includeHandles: React.PropTypes.bool,
   })),
