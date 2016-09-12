@@ -70,7 +70,8 @@ class App extends React.Component {
       <div id='range' className='container'>
         <h3>Range</h3>
         <ul>
-          <li>Custom layout for steps and handles</li>
+          <li>Two handles with a range in between</li>
+          <li>Custom round layout for steps and handles</li>
           <li>Bouncy spring config for animation</li>
         </ul>
         <SliderInput
@@ -198,8 +199,8 @@ class App extends React.Component {
           <SliderInput />
         </div>
 
-        <div id='thin' className='container'>
-          <SliderInput min={1} max={100} />
+        <div id='longrange' className='container'>
+          <SliderInput min={1} max={100} step={0.1} value={69.9}/>
         </div>
 
         <div className='container'>
