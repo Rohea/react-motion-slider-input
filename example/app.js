@@ -28,6 +28,7 @@ class App extends React.Component {
         handle1: data.handle1.value,
         handle2: data.handle2.value,
         handle3: data.handle3.value,
+        handle4: data.handle4.value,
       }
     })
   }
@@ -67,6 +68,11 @@ class App extends React.Component {
     ];
     return(
       <div id='range' className='container'>
+        <h3>Range</h3>
+        <ul>
+          <li>Custom layout for steps and handles</li>
+          <li>Bouncy spring config for animation</li>
+        </ul>        
         <SliderInput
           className='range-example'
           steps={steps}
@@ -149,7 +155,18 @@ class App extends React.Component {
     ];
     return(
       <div id='complex' className='container'>
-        <label className='preview'>{this.state.complexSlider.handle1} : {this.state.complexSlider.handle2} : {this.state.complexSlider.handle3}</label>
+        <h3>Complex</h3>
+        <ul>
+          <li>Custom colors for each step.</li>
+          <li>Four handles and three ranges. Ranges 1 and 2 include handles.</li>
+          <li>Transparent handles with borders</li>
+        </ul>
+        <label className='preview'>
+          {this.state.complexSlider.handle1}&nbsp;:&nbsp;
+          {this.state.complexSlider.handle2}&nbsp;:&nbsp;
+          {this.state.complexSlider.handle3}&nbsp;:&nbsp;
+          {this.state.complexSlider.handle4}
+        </label>
         <SliderInput
           className='complex-example'
           steps={steps}
@@ -175,7 +192,7 @@ class App extends React.Component {
       <div>
         <h1>Slider Input for React and React-Motion</h1>
 
-        <div className='container'>
+        <div id='default' className='container'>
           <SliderInput />
         </div>
 
