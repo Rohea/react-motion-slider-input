@@ -139,7 +139,7 @@ class App extends React.Component {
         <h1>Slider Input for React and React-Motion</h1>
 
         <div id='default' className='container'>
-          <SliderInput />
+          <SliderInput value={3}/>
         </div>
 
         <div id='longrange' className='container'>

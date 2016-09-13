@@ -93,6 +93,7 @@ const initialState = {
   isHandleMoving: false,
   movingHandleIndex: 0,
   movingHandlePosition: 0,
+  detailedValue: false,
 };
 
 /**
@@ -152,6 +153,17 @@ const prepareRanges = (config) => {
   return ranges;
 };
 
+const decimalPlaces = (number) => {
+  const match = (''+number).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+  if (! match) { return 0; }
+  return Math.max(
+    0,
+    // Number of digits right of decimal point.
+    (match[1] ? match[1].length : 0)
+    // Adjust for scientific notation.
+    - (match[2] ? +match[2] : 0));
+};
+
 class SliderInput extends React.Component {
   constructor(props) {
     super(props);
@@ -167,6 +179,7 @@ class SliderInput extends React.Component {
     // create initial state
     let map = Immutable.fromJS(initialState);
     this.config = Object.assign({}, defaultConfig, this.props);
+
     // Prepare steps, handles
     const steps = prepareSteps(this.config);
     map = map.set('steps', Immutable.fromJS(steps));
@@ -180,6 +193,7 @@ class SliderInput extends React.Component {
 
   /* global window:false */
   componentDidMount() {
+    console.log("componentDidMount");
     window.addEventListener('resize', this.onWindowResize);
     window.addEventListener('scroll', this.onWindowScroll);
     const map = this.updateAllElements(this.state.map);
@@ -225,6 +239,8 @@ class SliderInput extends React.Component {
       map = map.setIn(['handles', index, 'value'], closestStep.get('value'));
       map = map.setIn(['handles', index, 'position'], closestStep.get('position'));
     } else {
+      const closestStepValue = this.calculateClosestValue(movingHandlePosition);
+      map = map.setIn(['handles', index, 'value'], closestStepValue);
       map = map.setIn(['handles', index, 'position'], movingHandlePosition);
     }
     // Reset state
@@ -242,14 +258,18 @@ class SliderInput extends React.Component {
   onTrackClick(eventX, eventY) {
     let map = this.state.map;
     const trackStart = this.vertical() ? this.state.map.getIn(['track', 'top']) : this.state.map.getIn(['track', 'left']);
+    // const trackLength = map.getIn(['track', 'length']);
     const eventPos = this.vertical() ? eventY : eventX;
     const newPosition = eventPos - trackStart;
+
     const closestHandle = this.findClosest(map.get('handles'), newPosition);
     if (map.get('steps').size > 0) {
       const closestStep = this.findClosest(map.get('steps'), newPosition);
       map = map.setIn(['handles', closestHandle.get('index'), 'value'], closestStep.get('value'));
       map = map.setIn(['handles', closestHandle.get('index'), 'position'], closestStep.get('position'));
     } else {
+      const closestStepValue = this.calculateClosestValue(newPosition);
+      map = map.setIn(['handles', closestHandle.get('index'), 'value'], closestStepValue);
       map = map.setIn(['handles', closestHandle.get('index'), 'position'], newPosition);
     }
     map = this.updateDynamicElements(map);
@@ -274,11 +294,40 @@ class SliderInput extends React.Component {
     this.setState({ map });
   }
 
+  calculateClosestValue(position) {
+    const map = this.state.map;
+    const trackLength = map.getIn(['track', 'length']);
+    const accurateValue = ((position / trackLength) * (this.config.max - this.config.min)) + this.config.min;
+    let closestDistance = -1;
+    let closestStepValue = null;
+    let stepValue = this.config.min;
+    const numDecimalPlaces = decimalPlaces(this.config.step);
+
+    while (stepValue <= this.config.max) {
+      const distance = Math.abs(stepValue - accurateValue);
+      if (closestDistance < 0 || distance < closestDistance) {
+        closestDistance = distance;
+        closestStepValue = stepValue;
+      }
+      stepValue += this.config.step;
+    }
+    return closestStepValue.toFixed(numDecimalPlaces);
+  }
+
+  calculateClosestPosition(value, map) {
+    const trackLength = map.getIn(['track', 'length']);
+    const numDecimalPlaces = decimalPlaces(this.config.step);
+    console.log("calculate position with value: "+value+" and trackLength: "+trackLength);
+
+    const position = ((value - this.config.min) / (this.config.max - this.config.min)) * trackLength;
+    console.log("position: "+position);
+    return position.toFixed(numDecimalPlaces);
+  }
+
   updateAllElements(map) {
     let m = map;
     // Container size
     const containerRect = this.refs.track.getOuterElement().getBoundingClientRect();
-    console.log(containerRect);
     m = m.set('container', Immutable.fromJS({
       left: containerRect.left,
       top: containerRect.top,
@@ -412,17 +461,8 @@ class SliderInput extends React.Component {
       if (steps && steps.size > 0) {
         // Snap to steps, if steps are available
         const closestStep = this.findClosest(steps, movingHandlePosition);
-        handleCenterLength = closestStep.get('position'); // this.vertical() ? closestStep.get('y') : closestStep.get('x');
+        handleCenterLength = closestStep.get('position');
       }
-
-      // Prevent going over borders
-      if (movingHandlePosition < 0) {
-        handleCenterLength = 0;
-      }
-      if (movingHandlePosition > trackLength) {
-        handleCenterLength = trackLength;
-      }
-
       // Prevent running over next handle
       if (map.hasIn(['handles', (handleIndex + 1)])) {
         const nextHandle = map.getIn(['handles', (handleIndex + 1)]);
@@ -440,8 +480,8 @@ class SliderInput extends React.Component {
         }
       }
     } else {
-      // If there are steps.
       if (steps && steps.size > 0) {
+        // If there are steps.
         // Find matching step by value
         let closestStep = null;
         steps.map((step) => {
@@ -451,19 +491,23 @@ class SliderInput extends React.Component {
         });
         // TODO: Prevent dropping handle on the wrong side of next/prev handle
         if (closestStep) {
-          handleCenterLength = closestStep.get('position'); // this.vertical() ? closestStep.get('y') : closestStep.get('x');
+          handleCenterLength = closestStep.get('position');
         }
       } else {
-        handleCenterLength = handle.get('position'); // this.vertical() ? handle.get('y') : handle.get('x');
-        // Prevent going over borders
-        if (handleCenterLength < 0) {
-          handleCenterLength = 0;
+        // No steps are used on track. Use value -> position conversion
+        handleCenterLength = handle.get('position');
+        if (handle.get('value')) {
+          handleCenterLength = this.calculateClosestPosition(handle.get('value'), map);
         }
-        if (handleCenterLength > trackLength) {
-          handleCenterLength = trackLength;
-        }
-        // No steps are used on track. Use
       }
+    }
+
+    // Prevent going over borders
+    if (handleCenterLength < 0) {
+      handleCenterLength = 0;
+    }
+    if (handleCenterLength > trackLength) {
+      handleCenterLength = trackLength;
     }
 
     const handleCenterGauge = trackGauge / 2;
@@ -573,12 +617,15 @@ class SliderInput extends React.Component {
     this.setState({ map });
   }
 
+  /**
+   * Notify 3rd party code by calling onChange
+   */
   triggerChange(map) {
     const trackLength = map.getIn(['track', 'length']);
 
     // Build value for 3rd party code
     const handles = map.get('handles');
-    const data = {};
+    let data = {};
     handles.map((handle) => {
       // Find matching step
       let matchingStep = null;
@@ -603,10 +650,13 @@ class SliderInput extends React.Component {
       }
       return handle;
     });
-    console.log(JSON.stringify(data));
+    if (this.config.detailedValue !== true && handles.size === 1) {
+      data = handles.getIn([0, 'value']);
+    }
     if (this.props.onChange) {
       this.props.onChange(data);
     }
+    console.log(JSON.stringify(data));
   }
 
   /**
@@ -756,6 +806,7 @@ SliderInput.propTypes = {
     damping: React.PropTypes.number,
     precision: React.PropTypes.number,
   }),
+  detailedValue: React.PropTypes.bool,
 };
 // export default Dimensions()(InputSlider);
 export default SliderInput;

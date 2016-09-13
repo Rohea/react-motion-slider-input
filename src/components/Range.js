@@ -8,8 +8,7 @@ class Range extends React.Component {
   }
 
   onClick(e) {
-    console.log("range clicked");
-    this.props.onClick(e.pageX, e.pageY);
+    this.props.onClick(e.clientX, e.clientY);
     e.stopPropagation();
     e.preventDefault();
   }
