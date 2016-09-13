@@ -209,7 +209,9 @@ class SliderInput extends React.Component {
     let map = this.state.map;
     // Calculate new value for handle by finding closest step to handle
     const movingHandlePosition = map.get('movingHandlePosition');
+console.log(movingHandlePosition);
     const closestStep = this.findClosest(map.get('steps'), movingHandlePosition);
+console.log(closestStep.get('index'));
     // Snap to closest step
     map = map.setIn(['handles', index, 'value'], closestStep.get('value'));
     // Reset state
@@ -239,6 +241,7 @@ class SliderInput extends React.Component {
     const closestHandle = this.findClosest(map.get('handles'), (eventPos - trackStart));
     const closestStep = this.findClosest(map.get('steps'), (eventPos - trackStart));
     map = map.setIn(['handles', closestHandle.get('index'), 'value'], closestStep.get('value'));
+
     // Handle positions
     const handles = map.get('handles').map((handle, i) => this.calculateHandlePosition(i, map));
     map = map.set('handles', handles);
@@ -277,7 +280,6 @@ class SliderInput extends React.Component {
 
     this.triggerChange(map);
     this.setState({ map });
-
   }
 
   updatePositions(map) {
@@ -314,6 +316,8 @@ console.log(m.toJS());
     const handleRect = this.refs['handle-0'].refs.motion.refs.button.getBoundingClientRect(); // There's always at least one handle
     m = m.set('handleLength', this.vertical() ? handleRect.height : handleRect.width);
     m = m.set('handleGauge', this.vertical() ? handleRect.width : handleRect.height);
+
+
     // Handle positions
     const handles = m.get('handles').map((handle, i) => this.calculateHandlePosition(i, m));
     m = m.set('handles', handles);
@@ -327,6 +331,8 @@ console.log(m.toJS());
     // Return a map
     return m;
   }
+
+
 
   calculateStepPosition(stepIndex, map) {
     let step = map.getIn(['steps', stepIndex]);
@@ -409,12 +415,13 @@ console.log(m.toJS());
       }
 
       // Prevent going over borders
-      if (movingHandlePosition < (0)) {
-        handleCenterLength = (0);
+      if (movingHandlePosition < 0) {
+        handleCenterLength = 0;
       }
-      if (movingHandlePosition > (trackLength)) {
+      if (movingHandlePosition > trackLength) {
         handleCenterLength = trackLength;
       }
+
       // Prevent running over next handle
       if (map.hasIn(['handles', (handleIndex + 1)])) {
         const nextHandle = map.getIn(['handles', (handleIndex + 1)]);
@@ -477,19 +484,25 @@ console.log(m.toJS());
     const trackGauge = map.getIn(['track', 'gauge']);
     const handleLength = map.get('handleLength');
 
-    let range = map.getIn(['ranges', rangeIndex]);
+    const trackStart = this.vertical() ? map.getIn(['track', 'top']) : map.getIn(['track', 'left']);
+    const containerStart = this.vertical() ? map.getIn(['container', 'top']) : map.getIn(['container', 'left']);
+    const trackPadding = trackStart - containerStart;
+    const stepLength = map.get('stepLength');
 
-    let rangePositionStart = 0;
-    let rangePositionEnd = trackLength + handleLength;
+    console.log(trackPadding);
+
+    let range = map.getIn(['ranges', rangeIndex]);
+    let rangePositionStart = 0 - (stepLength / 2);
+    let rangePositionEnd = trackLength + (stepLength / 2);
     // Find start and end handle
     const fromHandleIndex = range.get('fromHandle');
     if (fromHandleIndex > -1) {
       const fromHandle = map.getIn(['handles', fromHandleIndex]);
       rangePositionStart = this.vertical() ? fromHandle.get('y') : fromHandle.get('x');
       if (range.get('includeHandles')) {
-        rangePositionStart -= handleLength / 2;
+        rangePositionStart -= (handleLength / 2);
       } else {
-        rangePositionStart += handleLength / 2;
+        rangePositionStart += (handleLength / 2);
       }
     }
     let toHandleIndex = 0;
@@ -505,7 +518,7 @@ console.log(m.toJS());
         rangePositionEnd -= handleLength / 2;
       }
     }
-    const rangePosition = rangePositionStart;
+    const rangePosition = rangePositionStart + trackPadding;
     const rangeLength = rangePositionEnd - rangePositionStart;
 
     if (this.vertical()) {
@@ -602,11 +615,11 @@ console.log(m.toJS());
    */
   findClosest(list, position) {
     let closestItem = null;
-    let closestDistance = null;
+    let closestDistance = -1;
     list.map((item, index) => {
       const itemPosition = this.vertical() ? item.get('y') : item.get('x');
       const distance = Math.abs(position - itemPosition);
-      if (!closestDistance || distance < closestDistance) {
+      if (closestDistance < 0 || distance < closestDistance) {
         closestDistance = distance;
         closestItem = item;
       }
@@ -629,7 +642,7 @@ console.log(m.toJS());
           orientation={this.vertical() ? 'vertical' : 'horizontal'}
           onClick={this.onTrackClick}
           handleLength={this.state.map.get('handleLength')}
-        />
+        >
         {this.state.map.get('ranges').map((range, i) => {
           const key = `react-motion-input-slider-range-${i}`;
           return (
@@ -687,6 +700,7 @@ console.log(m.toJS());
             />
           );
         })}
+      </Track>
 
 
 
