@@ -34,7 +34,7 @@ class App extends React.Component {
     });
   }
 
-  renderRange() {
+  renderStyledRange() {
     // Comples steps and ranges
     const steps = [];
     let handles = [];
@@ -91,6 +91,38 @@ class App extends React.Component {
     );
   }
 
+  renderRange() {
+    let steps = [];
+    for (let i = 1; i <= 10; i++) {
+      steps.push({
+        label: '' + i,
+        id: `step${i}`,
+        value: i,
+      });
+    }
+    const handles = [
+      {
+        value: 4,
+      },
+      {
+        value: 7,
+      },
+    ];
+    const ranges = [
+      {
+        fromHandle: 0,
+      },
+    ];
+    return (
+      <SliderInput
+        className='range-example'
+        steps={steps}
+        handles={handles}
+        ranges={ranges}
+      />
+    );
+  }
+
   render() {
     const steps = [];
 
@@ -98,7 +130,7 @@ class App extends React.Component {
     for (let i = 1; i < 11; i++) {
       steps.push({
         label: `S${i}`,
-        value: i * 2,
+        value: i,
       });
     }
 
@@ -111,21 +143,27 @@ class App extends React.Component {
         </div>
 
         <div id='longrange' className='container'>
-          <SliderInput min={1} max={100} step={0.1} value={69.9} />
+          <SliderInput min={1} max={100} step={0.1} value={69.9} range={true} />
         </div>
 
         <div className='container'>
-          <SliderInput steps={steps} value={8} range={true} />
+          <SliderInput steps={steps} value={5} range={true} />
         </div>
         <div className='container'>
-          <SliderInput steps={steps} value={8} range={'above'} />
+          {this.renderRange()}
+        </div>
+        <div className='container'>
+          <SliderInput steps={steps} value={6} range='above' />
         </div>
 
-        {this.renderRange()}
+        {this.renderStyledRange()}
 
         <Complex />
 
-        <div className='container' style={{ height: '300px', width: '30%' }}>
+        <div className='container vertical'>
+          <SliderInput orientation='vertical' />
+        </div>
+        <div className='container vertical'>
           <SliderInput orientation='vertical' />
         </div>
       </div>

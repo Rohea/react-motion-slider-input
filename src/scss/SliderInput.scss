@@ -5,7 +5,7 @@
 }
 
 .ReactMotionSliderInput-Track {
-  background-color: #ffcccc;
+  background-color: #eeeeee;
   width: 100%;
   height: 20px;
   cursor: pointer;
@@ -24,7 +24,7 @@
   text-align: center;
   cursor: pointer;
   &.ReactMotionSliderInput-in-range {
-    background-color: rgba(50,50,50,0.5);
+    background-color: rgba(50,50,50,0.7);
   }
 }
 .ReactMotionSliderInput-Handle {
@@ -35,7 +35,7 @@
   cursor: pointer;
 }
 .ReactMotionSliderInput-Range {
-  background-color: rgba(50,50,50,0.5);
+  background-color: rgba(50,50,50,0.7);
   height: 20px;
   position: absolute;
   cursor: pointer;

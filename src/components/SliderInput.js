@@ -12,6 +12,7 @@ const defaultHandle = {
   id: null,
   value: 1, // should be same as default config value
   label: null,
+  position: 0,
   left: 0,
   top: 0,
   x: 0, // step center x
@@ -24,7 +25,7 @@ const defaultStep = {
   index: 0,
   label: null,
   value: 0,
-  isVisible: false,
+  position: 0,
   left: 0,
   top: 0,
   x: 0, // step center x
@@ -40,6 +41,8 @@ const defaultRange = {
   fromHandle: -1, // by default from left border to first handle
   className: null,
   includeHandles: false,
+  position: 0,
+  length: 0,
   left: 0,
   top: 0,
   x: 0,
@@ -103,9 +106,8 @@ const prepareSteps = (config) => {
     steps = config.steps.map((step, i) => Object.assign({}, defaultStep, {
       id: (step.id) ? step.id : i,
       index: i,
-      isVisible: true,
     }, step));
-  } else {
+  } else if (config.showSteps) {
     // create steps based on min, max and step values
     for (let i = config.min; i <= config.max; i += config.step) {
       steps.push(Object.assign({}, defaultStep, {
@@ -113,7 +115,6 @@ const prepareSteps = (config) => {
         index: i,
         value: i,
         label: i.toString(),
-        isVisible: config.showSteps,
       }));
     }
   }
@@ -209,11 +210,14 @@ class SliderInput extends React.Component {
     let map = this.state.map;
     // Calculate new value for handle by finding closest step to handle
     const movingHandlePosition = map.get('movingHandlePosition');
-console.log(movingHandlePosition);
-    const closestStep = this.findClosest(map.get('steps'), movingHandlePosition);
-console.log(closestStep.get('index'));
-    // Snap to closest step
-    map = map.setIn(['handles', index, 'value'], closestStep.get('value'));
+    if (map.get('steps').size > 0) {
+      const closestStep = this.findClosest(map.get('steps'), movingHandlePosition);
+      // Snap to closest step
+      map = map.setIn(['handles', index, 'value'], closestStep.get('value'));
+      map = map.setIn(['handles', index, 'position'], closestStep.get('position'));
+    } else {
+      map = map.setIn(['handles', index, 'position'], movingHandlePosition);
+    }
     // Reset state
     map = map.withMutations((mp) => {
       mp.set('isHandleMoving', false)
@@ -239,8 +243,11 @@ console.log(closestStep.get('index'));
     const trackStart = this.vertical() ? this.state.map.getIn(['track', 'top']) : this.state.map.getIn(['track', 'left']);
     const eventPos = this.vertical() ? eventY : eventX;
     const closestHandle = this.findClosest(map.get('handles'), (eventPos - trackStart));
-    const closestStep = this.findClosest(map.get('steps'), (eventPos - trackStart));
-    map = map.setIn(['handles', closestHandle.get('index'), 'value'], closestStep.get('value'));
+
+    if (map.get('steps').size > 0) {
+      const closestStep = this.findClosest(map.get('steps'), (eventPos - trackStart));
+      map = map.setIn(['handles', closestHandle.get('index'), 'value'], closestStep.get('value'));
+    }
 
     // Handle positions
     const handles = map.get('handles').map((handle, i) => this.calculateHandlePosition(i, map));
@@ -261,7 +268,6 @@ console.log(closestStep.get('index'));
   }
 
   onStepClick(stepIndex) {
-    console.log("step click");
     let map = this.state.map;
     const step = map.getIn(['steps', stepIndex]);
     const stepPos = this.vertical() ? step.get('y') : step.get('x');
@@ -300,8 +306,6 @@ console.log(closestStep.get('index'));
       length: this.vertical() ? trackRect.height : trackRect.width,
       gauge: this.vertical() ? trackRect.width : trackRect.height,
     }));
-console.log(m.toJS());
-
     // Step dimensions
     if (this.refs['step-0']) {
       const stepRect = this.refs['step-0'].refs.span.getBoundingClientRect();
@@ -317,7 +321,6 @@ console.log(m.toJS());
     m = m.set('handleLength', this.vertical() ? handleRect.height : handleRect.width);
     m = m.set('handleGauge', this.vertical() ? handleRect.width : handleRect.height);
 
-
     // Handle positions
     const handles = m.get('handles').map((handle, i) => this.calculateHandlePosition(i, m));
     m = m.set('handles', handles);
@@ -332,11 +335,8 @@ console.log(m.toJS());
     return m;
   }
 
-
-
   calculateStepPosition(stepIndex, map) {
     let step = map.getIn(['steps', stepIndex]);
-    // const trackStart = this.vertical() ? map.getIn(['track', 'top']) : map.getIn(['track', 'left']);
     const trackLength = map.getIn(['track', 'length']);
     const trackGauge = map.getIn(['track', 'gauge']);
     const stepLength = map.get('stepLength');
@@ -352,18 +352,20 @@ console.log(m.toJS());
     const stepCenterLength = (stepIndex * ((trackLength) / (numSteps - 1))); // steps over track endings
 
     const stepPositionGauge = stepCenterGauge - (stepGauge / 2);
-    const stepPositionLength = stepCenterLength - (stepLength / 2) + trackPadding;
+    const stepPositionLength = (stepCenterLength + trackPadding) - (stepLength / 2);
 
     if (this.vertical()) {
       step = step.withMutations((st) => {
-        st.set('left', stepPositionGauge)
+        st.set('position', stepPositionLength)
+          .set('left', stepPositionGauge)
           .set('top', stepPositionLength)
           .set('x', stepCenterGauge)
           .set('y', stepCenterLength);
       });
     } else {
       step = step.withMutations((st) => {
-        st.set('left', stepPositionLength)
+        st.set('position', stepPositionLength)
+          .set('left', stepPositionLength)
           .set('top', stepPositionGauge)
           .set('x', stepCenterLength)
           .set('y', stepCenterGauge);
@@ -374,14 +376,14 @@ console.log(m.toJS());
 
   calculateIfStepInRange(stepIndex, map) {
     const step = map.getIn(['steps', stepIndex]);
-    const stepCenter = this.vertical() ? step.get('y') : step.get('x');
+    const stepCenter = step.get('position');
     // Check if steps belongs to a range
     let inRange = null;
     map.get('ranges').map((range) => {
-      const rangeCenterStart = this.vertical() ? range.get('top') : range.get('left');
-      const rangeLength = this.vertical() ? range.get('height') : range.get('width');
+      const rangePosition = range.get('position');
+      const rangeLength = range.get('length');
       // const rangeCenterEnd = rangeLength - rangeCenterStart;
-      if (stepCenter >= rangeCenterStart && stepCenter <= (rangeLength + rangeCenterStart)) {
+      if (stepCenter >= rangePosition && stepCenter <= (rangeLength + rangePosition)) {
         inRange = range.get('index');
       }
     });
@@ -411,7 +413,8 @@ console.log(m.toJS());
       if (steps && steps.size > 0) {
         // Snap to steps, if steps are available
         const closestStep = this.findClosest(steps, movingHandlePosition);
-        handleCenterLength = this.vertical() ? closestStep.get('y') : closestStep.get('x');
+        console.log(closestStep);
+        handleCenterLength = closestStep.get('position'); // this.vertical() ? closestStep.get('y') : closestStep.get('x');
       }
 
       // Prevent going over borders
@@ -453,6 +456,8 @@ console.log(m.toJS());
           handleCenterLength = this.vertical() ? closestStep.get('y') : closestStep.get('x');
         }
       } else {
+        handleCenterLength = this.vertical() ? handle.get('y') : handle.get('x');
+
         // No steps are used on track. Use
       }
     }
@@ -463,14 +468,16 @@ console.log(m.toJS());
 
     if (this.vertical()) {
       handle = handle.withMutations((st) => {
-        st.set('left', handlePositionGauge)
+        st.set('position', handleCenterLength)
+          .set('left', handlePositionGauge)
           .set('top', handlePositionLength)
           .set('x', handleCenterGauge)
           .set('y', handleCenterLength);
       });
     } else {
       handle = handle.withMutations((st) => {
-        st.set('left', handlePositionLength)
+        st.set('position', handleCenterLength)
+          .set('left', handlePositionLength)
           .set('top', handlePositionGauge)
           .set('x', handleCenterLength)
           .set('y', handleCenterGauge);
@@ -489,8 +496,6 @@ console.log(m.toJS());
     const trackPadding = trackStart - containerStart;
     const stepLength = map.get('stepLength');
 
-    console.log(trackPadding);
-
     let range = map.getIn(['ranges', rangeIndex]);
     let rangePositionStart = 0 - (stepLength / 2);
     let rangePositionEnd = trackLength + (stepLength / 2);
@@ -498,11 +503,9 @@ console.log(m.toJS());
     const fromHandleIndex = range.get('fromHandle');
     if (fromHandleIndex > -1) {
       const fromHandle = map.getIn(['handles', fromHandleIndex]);
-      rangePositionStart = this.vertical() ? fromHandle.get('y') : fromHandle.get('x');
+      rangePositionStart = fromHandle.get('position') + (handleLength / 2);
       if (range.get('includeHandles')) {
-        rangePositionStart -= (handleLength / 2);
-      } else {
-        rangePositionStart += (handleLength / 2);
+        rangePositionStart -= handleLength;
       }
     }
     let toHandleIndex = 0;
@@ -511,26 +514,28 @@ console.log(m.toJS());
     }
     const toHandle = map.getIn(['handles', toHandleIndex]);
     if (toHandle) {
-      rangePositionEnd = this.vertical() ? toHandle.get('y') : toHandle.get('x');
+      rangePositionEnd = toHandle.get('position') - (handleLength / 2);
       if (range.get('includeHandles')) {
-        rangePositionEnd += handleLength / 2;
-      } else {
-        rangePositionEnd -= handleLength / 2;
+        rangePositionEnd += handleLength;
       }
     }
-    const rangePosition = rangePositionStart + trackPadding;
-    const rangeLength = rangePositionEnd - rangePositionStart;
+    const rangePosition = Math.floor(rangePositionStart + trackPadding);
+    const rangeLength = Math.ceil(rangePositionEnd - rangePositionStart);
 
     if (this.vertical()) {
       range = range.withMutations((st) => {
-        st.set('left', 0)
+        st.set('position', rangePosition)
+          .set('length', rangeLength)
+          .set('left', 0)
           .set('top', rangePosition)
           .set('width', trackGauge)
           .set('height', rangeLength);
       });
     } else {
       range = range.withMutations((st) => {
-        st.set('left', rangePosition)
+        st.set('position', rangePosition)
+          .set('length', rangeLength)
+          .set('left', rangePosition)
           .set('top', 0)
           .set('width', rangeLength)
           .set('height', trackGauge);
@@ -664,7 +669,6 @@ console.log(m.toJS());
         })}
 
         {this.state.map.get('steps').map((step, i) => {
-          if (step.get('isVisible') === false) return null;
           const key = `react-motion-input-slider-step-${i}`;
           return (
             <Step
@@ -672,7 +676,6 @@ console.log(m.toJS());
               index={i}
               key={key}
               label={step.get('label')}
-              isVisible={step.get('isVisible')}
               value={step.get('value')}
               left={step.get('left')}
               top={step.get('top')}
