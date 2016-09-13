@@ -6,9 +6,10 @@ class Step extends React.Component {
     this.onClick = this.onClick.bind(this);
   }
 
-  onClick() {
-    console.log("step clicked");
+  onClick(e) {
     this.props.onClick(this.props.index);
+    e.stopPropagation();
+    e.preventDefault();
   }
 
   render() {

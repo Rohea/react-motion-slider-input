@@ -43,8 +43,8 @@ class Handle extends React.Component {
     if (e.button !== 0) return;
 
     const rect = this.refs.motion.refs.button.getBoundingClientRect();
-    const deltaX = e.pageX - rect.left;
-    const deltaY = e.pageY - rect.top;
+    const deltaX = e.clientX - rect.left;
+    const deltaY = e.clientY - rect.top;
     this.setState({
       isDragging: true,
       deltaX: deltaX,
@@ -52,14 +52,14 @@ class Handle extends React.Component {
     });
     e.stopPropagation();
     e.preventDefault();
-    this.props.onCatch(this.props.index, e.pageX, e.pageY, deltaX, deltaY);
+    this.props.onCatch(this.props.index, e.clientX, e.clientY, deltaX, deltaY);
   }
 
   onMouseMove(e) {
     if (!this.state.isDragging) return;
     e.stopPropagation();
     e.preventDefault();
-    this.props.onMove(this.props.index, e.pageX, e.pageY, this.state.deltaX, this.state.deltaY);
+    this.props.onMove(this.props.index, e.clientX, e.clientY, this.state.deltaX, this.state.deltaY);
   }
 
   onMouseUp(e) {
@@ -70,10 +70,6 @@ class Handle extends React.Component {
   }
 
   onTouchStart(e) {
-    console.log('touch detected');
-    console.log(e);
-    console.log(e.touches[0].clientX);
-
     const rect = this.refs.motion.refs.button.getBoundingClientRect();
     const deltaX = e.touches[0].clientX - rect.left;
     const deltaY = e.touches[0].clientY - rect.top;

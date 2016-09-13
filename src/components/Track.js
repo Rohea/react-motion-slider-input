@@ -8,8 +8,7 @@ class Track extends React.Component {
   }
 
   onClick(e) {
-    console.log("track clicked");
-    this.props.onClick(e.pageX, e.pageY);
+    this.props.onClick(e.clientX, e.clientY);
   }
 
   getOuterElement() {

@@ -49,7 +49,7 @@ class App extends React.Component {
     handles = [
       {
         id: 'lower',
-        value: 1,
+        value: 3,
         label: 'Lower',
         className: 'handle-lower',
       },
