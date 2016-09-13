@@ -64,6 +64,7 @@ class App extends React.Component {
         label: 'Range1',
         fromHandle: 0,
         className: 'range-custom',
+        includeHandles: true,
       },
     ];
     return (

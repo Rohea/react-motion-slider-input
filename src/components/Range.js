@@ -2,6 +2,17 @@ import React from 'react';
 import { Motion, spring } from 'react-motion';
 
 class Range extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onClick = this.onClick.bind(this);
+  }
+
+  onClick(e) {
+    console.log("range clicked");
+    console.log(e.pageX);
+    this.props.onClick(e.pageX, e.pageY);
+  }
+
   render() {
     const className = 'ReactMotionSliderInput-Range' + ((this.props.className) ? ' ' + this.props.className : '');
     return (
@@ -18,6 +29,7 @@ class Range extends React.Component {
         {value =>
           <span
             ref='span'
+            onClick={this.onClick}
             style={{
               left: `${value.left}px`,
               top: `${value.top}px`,
@@ -38,6 +50,7 @@ Range.propTypes = {
   top: React.PropTypes.number.isRequired,
   width: React.PropTypes.number.isRequired,
   height: React.PropTypes.number.isRequired,
+  onClick: React.PropTypes.func.isRequired,
   className: React.PropTypes.string,
   spring: React.PropTypes.shape({
     stiffness: React.PropTypes.number,

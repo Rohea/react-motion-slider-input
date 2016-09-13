@@ -69,6 +69,8 @@ const defaultConfig = {
 // default for this.state
 const initialState = {
   container: {
+    left: 0,
+    top: 0,
     width: 0,
     height: 0,
   },
@@ -157,6 +159,8 @@ class SliderInput extends React.Component {
     this.onHandleMove = this.onHandleMove.bind(this);
     this.onHandleRelease = this.onHandleRelease.bind(this);
     this.onTrackClick = this.onTrackClick.bind(this);
+    this.onRangeClick = this.onRangeClick.bind(this);
+    this.onStepClick = this.onStepClick.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
     // create initial state
     let map = Immutable.fromJS(initialState);
@@ -249,22 +253,53 @@ class SliderInput extends React.Component {
     this.setState({ map });
   }
 
+  onRangeClick(eventX, eventY) {
+    this.onTrackClick(eventX, eventY);
+  }
+
+  onStepClick(stepIndex) {
+    console.log("step click");
+    let map = this.state.map;
+    const step = map.getIn(['steps', stepIndex]);
+    const stepPos = this.vertical() ? step.get('y') : step.get('x');
+    const closestHandle = this.findClosest(map.get('handles'), stepPos);
+    map = map.setIn(['handles', closestHandle.get('index'), 'value'], step.get('value'));
+
+    // Handle positions
+    const handles = map.get('handles').map((handle, i) => this.calculateHandlePosition(i, map));
+    map = map.set('handles', handles);
+    // Range positions
+    const ranges = map.get('ranges').map((range, i) => this.calculateRangePosition(i, map));
+    map = map.set('ranges', ranges);
+    // Is step in range?
+    const steps = map.get('steps').map((step, i) => this.calculateIfStepInRange(i, map));
+    map = map.set('steps', steps);
+
+    this.triggerChange(map);
+    this.setState({ map });
+
+  }
+
   updatePositions(map) {
     let m = map || this.state.map;
     // Container size
-    const containerRect = this.refs.container.getBoundingClientRect();
+    const containerRect = this.refs.track.getOuterElement().getBoundingClientRect();
     m = m.set('container', Immutable.fromJS({
+      left: containerRect.left,
+      top: containerRect.top,
       width: containerRect.width,
       height: containerRect.height,
     }));
     // Track dimensions and position
-    const trackRect = this.refs.track.refs['track-div'].getBoundingClientRect();
+    const trackRect = this.refs.track.getInnerElement().getBoundingClientRect();
     m = m.set('track', Immutable.fromJS({
       left: trackRect.left,
       top: trackRect.top,
       length: this.vertical() ? trackRect.height : trackRect.width,
       gauge: this.vertical() ? trackRect.width : trackRect.height,
     }));
+console.log(m.toJS());
+
     // Step dimensions
     if (this.refs['step-0']) {
       const stepRect = this.refs['step-0'].refs.span.getBoundingClientRect();
@@ -300,6 +335,10 @@ class SliderInput extends React.Component {
     const trackGauge = map.getIn(['track', 'gauge']);
     const stepLength = map.get('stepLength');
     const stepGauge = map.get('stepGauge');
+    const trackStart = this.vertical() ? map.getIn(['track', 'top']) : map.getIn(['track', 'left']);
+    const containerStart = this.vertical() ? map.getIn(['container', 'top']) : map.getIn(['container', 'left']);
+
+    const trackPadding = trackStart - containerStart;
 
     const numSteps = map.get('steps') ? map.get('steps').size : 0;
 
@@ -307,7 +346,7 @@ class SliderInput extends React.Component {
     const stepCenterLength = (stepIndex * ((trackLength) / (numSteps - 1))); // steps over track endings
 
     const stepPositionGauge = stepCenterGauge - (stepGauge / 2);
-    const stepPositionLength = stepCenterLength - (stepLength / 2);
+    const stepPositionLength = stepCenterLength - (stepLength / 2) + trackPadding;
 
     if (this.vertical()) {
       step = step.withMutations((st) => {
@@ -353,6 +392,10 @@ class SliderInput extends React.Component {
     const movingHandleIndex = map.get('movingHandleIndex');
     const movingHandlePosition = map.get('movingHandlePosition');
 
+    const trackStart = this.vertical() ? map.getIn(['track', 'top']) : map.getIn(['track', 'left']);
+    const containerStart = this.vertical() ? map.getIn(['container', 'top']) : map.getIn(['container', 'left']);
+    const trackPadding = trackStart - containerStart;
+
     let handleCenterLength = null;
     const steps = map.get('steps');
 
@@ -366,10 +409,10 @@ class SliderInput extends React.Component {
       }
 
       // Prevent going over borders
-      if (movingHandlePosition < 0) {
-        handleCenterLength = 0;
+      if (movingHandlePosition < (0)) {
+        handleCenterLength = (0);
       }
-      if (movingHandlePosition > trackLength) {
+      if (movingHandlePosition > (trackLength)) {
         handleCenterLength = trackLength;
       }
       // Prevent running over next handle
@@ -408,7 +451,7 @@ class SliderInput extends React.Component {
     }
 
     const handleCenterGauge = trackGauge / 2;
-    const handlePositionLength = handleCenterLength - (handleLength / 2);
+    const handlePositionLength = handleCenterLength - (handleLength / 2) + trackPadding;
     const handlePositionGauge = handleCenterGauge - (handleGauge / 2);
 
     if (this.vertical()) {
@@ -437,7 +480,7 @@ class SliderInput extends React.Component {
     let range = map.getIn(['ranges', rangeIndex]);
 
     let rangePositionStart = 0;
-    let rangePositionEnd = trackLength;
+    let rangePositionEnd = trackLength + handleLength;
     // Find start and end handle
     const fromHandleIndex = range.get('fromHandle');
     if (fromHandleIndex > -1) {
@@ -491,11 +534,15 @@ class SliderInput extends React.Component {
    * @param deltaY distance from click event y to handle's top border
    */
   updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY) {
+    const containerStart = this.vertical() ? this.state.map.getIn(['container', 'top']) : this.state.map.getIn(['container', 'left']);
     const trackStart = this.vertical() ? this.state.map.getIn(['track', 'top']) : this.state.map.getIn(['track', 'left']);
     const handleLength = this.state.map.get('handleLength');
     const eventPos = this.vertical() ? eventY : eventX;
     const delta = this.vertical() ? deltaY : deltaX;
-    const handlePosition = (eventPos - delta - trackStart) + (handleLength / 2);
+
+    const trackPadding = trackStart - containerStart;
+
+    const handlePosition = (eventPos - delta - containerStart) + (handleLength / 2);
     let map = this.state.map.withMutations((mp) => {
       mp.set('isHandleMoving', true)
         .set('movingHandleIndex', index)
@@ -579,66 +626,70 @@ class SliderInput extends React.Component {
       <div className={classNames} ref='container'>
         <Track
           ref='track'
-          orientation={this.props.orientation}
+          orientation={this.vertical() ? 'vertical' : 'horizontal'}
           onClick={this.onTrackClick}
-        >
+          handleLength={this.state.map.get('handleLength')}
+        />
+        {this.state.map.get('ranges').map((range, i) => {
+          const key = `react-motion-input-slider-range-${i}`;
+          return (
+            <Range
+              ref={`range-${i}`}
+              index={i}
+              key={key}
+              label={range.get('label')}
+              value={range.get('value')}
+              left={range.get('left')}
+              top={range.get('top')}
+              width={range.get('width')}
+              height={range.get('height')}
+              className={range.get('className')}
+              spring={this.config.spring}
+              onClick={this.onRangeClick}
+            />
+          );
+        })}
 
-          {this.state.map.get('ranges').map((range, i) => {
-            const key = `react-motion-input-slider-range-${i}`;
-            return (
-              <Range
-                ref={`range-${i}`}
-                index={i}
-                key={key}
-                label={range.get('label')}
-                value={range.get('value')}
-                left={range.get('left')}
-                top={range.get('top')}
-                width={range.get('width')}
-                height={range.get('height')}
-                className={range.get('className')}
-                spring={this.config.spring}
-              />
-            );
-          })}
+        {this.state.map.get('steps').map((step, i) => {
+          if (step.get('isVisible') === false) return null;
+          const key = `react-motion-input-slider-step-${i}`;
+          return (
+            <Step
+              ref={`step-${i}`}
+              index={i}
+              key={key}
+              label={step.get('label')}
+              isVisible={step.get('isVisible')}
+              value={step.get('value')}
+              left={step.get('left')}
+              top={step.get('top')}
+              inRange={step.get('inRange')}
+              className={step.get('className')}
+              onClick={this.onStepClick}
+            />
+          );
+        })}
 
-          {this.state.map.get('steps').map((step, i) => {
-            if (step.get('isVisible') === false) return null;
-            const key = `react-motion-input-slider-step-${i}`;
-            return (
-              <Step
-                ref={`step-${i}`}
-                index={i}
-                key={key}
-                label={step.get('label')}
-                isVisible={step.get('isVisible')}
-                value={step.get('value')}
-                left={step.get('left')}
-                top={step.get('top')}
-                inRange={step.get('inRange')}
-                className={step.get('className')}
-              />
-            );
-          })}
+        {this.state.map.get('handles').map((handle, i) => {
+          const key = `react-motion-input-slider-handle-${i}`;
+          return (
+            <Handle
+              ref={`handle-${i}`}
+              index={i}
+              key={key}
+              left={handle.get('left')}
+              top={handle.get('top')}
+              onCatch={this.onHandleCatch}
+              onMove={this.onHandleMove}
+              onRelease={this.onHandleRelease}
+              label={handle.get('label')}
+              spring={this.config.spring}
+            />
+          );
+        })}
 
-          {this.state.map.get('handles').map((handle, i) => {
-            const key = `react-motion-input-slider-handle-${i}`;
-            return (
-              <Handle
-                ref={`handle-${i}`}
-                index={i}
-                key={key}
-                left={handle.get('left')}
-                top={handle.get('top')}
-                onCatch={this.onHandleCatch}
-                onMove={this.onHandleMove}
-                onRelease={this.onHandleRelease}
-                label={handle.get('label')}
-                spring={this.config.spring}
-              />
-            );
-          })}
-        </Track>
+
+
       </div>
     );
   }

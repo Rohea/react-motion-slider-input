@@ -11,8 +11,15 @@
   .range-example {
     .ReactMotionSliderInput-Track {
       height: 4px;
+      width: 96%;
+      padding: 0 2%;
+    }
+    .ReactMotionSliderInput-Track-Inner {
+      height: 4px;
       background-color: #cccccc;
       border-radius: 4px;
+      position: relative;
+      float: left;
       box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
     }
     .ReactMotionSliderInput-Step {
@@ -72,11 +79,19 @@
   }
   .complex-example {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
+    border-radius: 3px;
     .ReactMotionSliderInput-Track {
       height: 26px;
       background-color: #cccccc;
       border-radius: 3px;
-      box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
+      padding: 0 2.5%;
+      width: 95%;      
+    }
+    .ReactMotionSliderInput-Track-Inner {
+      height: 26px;
+      position: relative;
+      float: left;
     }
     .ReactMotionSliderInput-Step {
       width: 5%;
@@ -87,12 +102,15 @@
       background-color: #cccccc;
       &.step-green {
         background-color: #00b261;
+        opacity: 0.6;
       }
       &.step-yellow {
         background-color: #FCAC00;
+        opacity: 0.6;
       }
       &.step-red {
         background-color: #da0e4e;
+        opacity: 0.6;
       }
       &:first-of-type {
         border-top-left-radius: 3px;

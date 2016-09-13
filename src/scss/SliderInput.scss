@@ -1,14 +1,21 @@
 .ReactMotionSliderInput {
-  //position: relative;
+  position: relative;
   width: 100%;
   height: 100%;
 }
 
 .ReactMotionSliderInput-Track {
-  background-color: #cccccc;
+  background-color: #ffcccc;
+  position: relative;
   width: 100%;
   height: 20px;
   cursor: pointer;
+}
+.ReactMotionSliderInput-Track-Inner {
+  background-color: #cccccc;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 .ReactMotionSliderInput-Step {
   background-color: rgba(0,0,0,0.3);
@@ -16,6 +23,7 @@
   width: 20px;
   height: 30px;
   text-align: center;
+  cursor: pointer;
   &.ReactMotionSliderInput-in-range {
     background-color: rgba(50,50,50,0.5);
   }
@@ -31,12 +39,17 @@
   background-color: rgba(50,50,50,0.5);
   height: 20px;
   position: absolute;
+  cursor: pointer;
 }
 
 .ReactMotionSliderInput.vertical {
   .ReactMotionSliderInput-Track {
     height: 100%;
     width: 20px;
+  }
+  .ReactMotionSliderInput-Track-Inner {
+    height: 100%;
+    //width: 20px;
   }
   .ReactMotionSliderInput-Step {
     width: 30px;

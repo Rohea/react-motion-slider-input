@@ -1,6 +1,16 @@
 import React from 'react';
 
 class Step extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onClick = this.onClick.bind(this);
+  }
+
+  onClick() {
+    console.log("step clicked");
+    this.props.onClick(this.props.index);
+  }
+
   render() {
     const styles = {
       left: `${this.props.left}px`,
@@ -13,10 +23,10 @@ class Step extends React.Component {
       ((this.props.inRange !== null) ? ' ReactMotionSliderInput-in-range ReactMotionSliderInput-in-range-' + this.props.inRange : '') +
       ((this.props.className) ? ' ' + this.props.className : '');
     return (
-      <span ref='span' className={className} style={styles}>
+      <a ref='span' className={className} style={styles} onClick={this.onClick}>
         <span className='ReactMotionSliderInput-Step-Inner' />
         <span className='ReactMotionSliderInput-Step-Label'>{this.props.label}</span>
-      </span>
+      </a>
     );
   }
 }
@@ -24,6 +34,7 @@ Step.propTypes = {
   index: React.PropTypes.number.isRequired,
   left: React.PropTypes.number.isRequired,
   top: React.PropTypes.number.isRequired,
+  onClick: React.PropTypes.func.isRequired,
   label: React.PropTypes.string,
   isVisible: React.PropTypes.bool,
   inRange: React.PropTypes.number,
