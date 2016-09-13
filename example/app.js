@@ -161,10 +161,10 @@ class App extends React.Component {
         <Complex />
 
         <div className='container vertical'>
-          <SliderInput orientation='vertical' />
+          <SliderInput orientation='vertical' value={3} />
         </div>
         <div className='container vertical'>
-          <SliderInput orientation='vertical' />
+          <SliderInput orientation='vertical' steps={true} />
         </div>
       </div>
     );

@@ -54,7 +54,6 @@ const defaultRange = {
 const defaultConfig = {
   orientation: 'horizontal',
   steps: null,
-  showSteps: false,
   value: 1,
   step: 1,
   min: 1,
@@ -108,7 +107,7 @@ const prepareSteps = (config) => {
       id: (step.id) ? step.id : i,
       index: i,
     }, step));
-  } else if (config.showSteps) {
+  } else if (config.steps) {
     // create steps based on min, max and step values
     for (let i = config.min; i <= config.max; i += config.step) {
       steps.push(Object.assign({}, defaultStep, {

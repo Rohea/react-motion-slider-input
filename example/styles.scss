@@ -22,11 +22,11 @@
     }
     .ReactMotionSliderInput-Track-Inner {
       height: 4px;
-      background-color: #cccccc;
+      background-color: #B2CEEA;
       border-radius: 4px;
       position: relative;
       float: left;
-      box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
+      box-shadow: 0px 1px 1px rgba(21,50,79,0.3);
     }
     .ReactMotionSliderInput-Step {
       background-color: transparent;
@@ -35,7 +35,7 @@
       line-height: 20px;
       text-align: center;
       &.ReactMotionSliderInput-in-range .ReactMotionSliderInput-Step-Inner {
-        background-color: #666666;
+        background-color: #3277BC;
       }
       .ReactMotionSliderInput-Step-Inner {
         width: 13px;
@@ -44,7 +44,7 @@
         font-size: 0;
         display: inline-block;
         margin-top: 4px;
-        background-color: #cccccc;
+        background-color: #B2CEEA;
         color: transparent;
         transition: transform 0.2s ease-in-out;
       }
@@ -65,8 +65,18 @@
         background-color: transparent;
       }
     }
+    .ReactMotionSliderInput-Range {
+      background-color: #3277BC;
+    }
     .ReactMotionSliderInput-Handle {
-      background-color: rgba(0,0,0,0.5);
+      background: rgb(64,150,237);
+      background: -moz-radial-gradient(center, ellipse cover,  rgba(64,150,237,1) 0%, rgba(50,119,188,1) 100%);
+      background: -webkit-radial-gradient(center, ellipse cover,  rgba(64,150,237,1) 0%,rgba(50,119,188,1) 100%);
+      background: radial-gradient(ellipse at center,  rgba(64,150,237,1) 0%,rgba(50,119,188,1) 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4096ed', endColorstr='#3277bc',GradientType=1 );
+
+
+
       width: 20px;
       height: 20px;
       border-radius: 10px;
