@@ -16,7 +16,7 @@ class Step extends React.Component {
     const styles = {
       left: `${this.props.left}px`,
       top: `${this.props.top}px`,
-      //display: (this.props.isVisible) ? 'block' : 'none',
+      // display: (this.props.isVisible) ? 'block' : 'none',
       position: 'absolute',
     };
 

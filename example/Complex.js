@@ -1,6 +1,5 @@
 // Import stuff
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 import SliderInput from '../src/components/SliderInput';
 
@@ -102,7 +101,7 @@ class Complex extends React.Component {
           <li>Four handles and three ranges. Ranges 1 and 2 include handles.</li>
           <li>Transparent handles with borders</li>
         </ul>
-        <label className='preview'>
+        <label className='preview' htmlFor='preview'>
           {this.state.complexSlider.handle1}&nbsp;:&nbsp;
           {this.state.complexSlider.handle2}&nbsp;:&nbsp;
           {this.state.complexSlider.handle3}&nbsp;:&nbsp;

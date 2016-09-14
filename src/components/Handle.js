@@ -151,7 +151,6 @@ Handle.propTypes = {
     damping: React.PropTypes.number,
     precision: React.PropTypes.number,
   }).isRequired,
-  label: React.PropTypes.string,
 };
 
 export default Handle;

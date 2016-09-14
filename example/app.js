@@ -92,10 +92,10 @@ class App extends React.Component {
   }
 
   renderRange() {
-    let steps = [];
+    const steps = [];
     for (let i = 1; i <= 10; i++) {
       steps.push({
-        label: '' + i,
+        label: `${i}`,
         id: `step${i}`,
         value: i,
       });
@@ -139,15 +139,15 @@ class App extends React.Component {
         <h1>Slider Input for React and React-Motion</h1>
 
         <div id='default' className='container'>
-          <SliderInput value={3}/>
+          <SliderInput value={3} />
         </div>
 
         <div id='longrange' className='container'>
-          <SliderInput min={1} max={100} step={0.1} value={69.9} range={true} />
+          <SliderInput min={1} max={100} step={0.1} value={69.9} range />
         </div>
 
         <div className='container'>
-          <SliderInput steps={steps} value={5} range={true} />
+          <SliderInput steps={steps} value={5} range />
         </div>
         <div className='container'>
           {this.renderRange()}
@@ -164,7 +164,7 @@ class App extends React.Component {
           <SliderInput orientation='vertical' value={3} />
         </div>
         <div className='container vertical'>
-          <SliderInput orientation='vertical' steps={true} />
+          <SliderInput orientation='vertical' steps />
         </div>
       </div>
     );
