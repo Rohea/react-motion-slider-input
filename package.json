@@ -11,8 +11,7 @@
     "dev": "webpack-dev-server -c --port=8001",
     "prepublish": "npm run babel && npm run sass",
     "babel": "node_modules/babel-cli/bin/babel.js src --out-dir lib",
-    "sass": "node_modules/node-sass/bin/node-sass src/scss/SliderInput.scss lib/SliderInput.css",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "sass": "node_modules/node-sass/bin/node-sass src/scss/SliderInput.scss lib/SliderInput.css"
   },
   "babel": {
     "presets": ["es2015", "react"]
