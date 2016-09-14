@@ -6,21 +6,39 @@ This library is currently under heavy development. You can check it out if you r
 
 ### Install
 
-Currently:
+Make sure React and React-Motion are installed
 
-Checkout the repository and transpile e.g. with Babel (React and ES2015 plugins turned on)
+- `npm install --save react`
+- `npm install --save react-motion`
 
-In the future: (NOT WORKING YET)
+Install this library
 
-- Npm: `npm install --save react`
-- Npm: `npm install --save react-motion`
-- Npm: `npm install --save react-motion-slider-input`
+- `npm install --save react-motion-slider-input`
+
+Link css to your project from `lib/SliderInput.css` and create your own styles.
 
 ### Dependencies
 
 - React.js (peer dependency)
 - React-Motion (peer dependency)
 - Immutable.js
+
+### Usage
+
+```
+import { SliderInput } from 'react-motion-slider-input';
+
+... other code ...
+
+render() {
+  return (
+    <SliderInput />
+  );
+}
+```
+
+### Configuration
+
 
 ### Why, oh why?
 
