@@ -2,14 +2,18 @@
   "name": "react-motion-slider-input",
   "version": "0.1.0",
   "description": "A slider input component for react",
-  "main": "index.js",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Rohea/react-motion-slider-input.git"
   },
   "scripts": {
     "dev": "webpack-dev-server -c --port=8001",
+    "prepublish": "node_modules/babel-cli/bin/babel.js src --out-dir lib",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "babel": {
+    "presets": ["es2015", "react"]
   },
   "peerDependencies": {
     "react": ">=0.13.2 || ^0.14 || ^15.0.0",
@@ -22,6 +26,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.14.0",
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.14.0",
