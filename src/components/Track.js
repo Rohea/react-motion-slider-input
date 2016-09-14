@@ -25,8 +25,7 @@ class Track extends React.Component {
         className='ReactMotionSliderInput-Track'
         onClick={this.onClick}
       >
-        <div ref='inner' className='ReactMotionSliderInput-Track-Inner'>
-        </div>
+        <div ref='inner' className='ReactMotionSliderInput-Track-Inner' />
         {this.props.children}
       </div>
     );

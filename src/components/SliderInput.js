@@ -192,7 +192,7 @@ class SliderInput extends React.Component {
 
   /* global window:false */
   componentDidMount() {
-    console.log('componentDidMount');
+    console.log("componentDidMount");
     window.addEventListener('resize', this.onWindowResize);
     window.addEventListener('scroll', this.onWindowScroll);
     const map = this.updateAllElements(this.state.map);
@@ -316,10 +316,10 @@ class SliderInput extends React.Component {
   calculateClosestPosition(value, map) {
     const trackLength = map.getIn(['track', 'length']);
     const numDecimalPlaces = decimalPlaces(this.config.step);
-    console.log(`calculate position with value: ${value} and trackLength: ${trackLength}`);
+    console.log("calculate position with value: "+value+" and trackLength: "+trackLength);
 
     const position = ((value - this.config.min) / (this.config.max - this.config.min)) * trackLength;
-    console.log(`position: ${position}`);
+    console.log("position: "+position);
     return position.toFixed(numDecimalPlaces);
   }
 
@@ -349,7 +349,7 @@ class SliderInput extends React.Component {
     }
 
     // Step positions
-    const steps = m.get('steps').map((step, i) => this.calculateStepPosition(i, m));
+    let steps = m.get('steps').map((step, i) => this.calculateStepPosition(i, m));
     m = m.set('steps', steps);
 
     // Handle dimensions
@@ -510,7 +510,7 @@ class SliderInput extends React.Component {
     }
 
     const handleCenterGauge = trackGauge / 2;
-    const handlePositionLength = handleCenterLength - ((handleLength / 2) + trackPadding);
+    const handlePositionLength = handleCenterLength - (handleLength / 2) + trackPadding;
     const handlePositionGauge = handleCenterGauge - (handleGauge / 2);
 
     if (this.vertical()) {
