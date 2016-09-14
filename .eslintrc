@@ -6,6 +6,7 @@
     "react/jsx-filename-extension": "off",
     "new-cap": [2, {
         "capIsNewExceptions": ["Immutable.Map", "Immutable.Set", "Immutable.List"]
-    }]
+    }],
+    "react/no-unused-prop-types": [2, { "customValidators": [], "skipShapeProps": true }]
   }
 }
