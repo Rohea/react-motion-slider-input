@@ -1,1 +1,1 @@
-export { SliderInput } from './components/SliderInput';
+export { default as SliderInput } from './components/SliderInput';
