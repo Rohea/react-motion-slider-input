@@ -192,7 +192,6 @@ class SliderInput extends React.Component {
 
   /* global window:false */
   componentDidMount() {
-    console.log("componentDidMount");
     window.addEventListener('resize', this.onWindowResize);
     window.addEventListener('scroll', this.onWindowScroll);
     const map = this.updateAllElements(this.state.map);
@@ -316,10 +315,7 @@ class SliderInput extends React.Component {
   calculateClosestPosition(value, map) {
     const trackLength = map.getIn(['track', 'length']);
     const numDecimalPlaces = decimalPlaces(this.config.step);
-    console.log("calculate position with value: "+value+" and trackLength: "+trackLength);
-
     const position = ((value - this.config.min) / (this.config.max - this.config.min)) * trackLength;
-    console.log("position: "+position);
     return position.toFixed(numDecimalPlaces);
   }
 
@@ -655,7 +651,6 @@ class SliderInput extends React.Component {
     if (this.props.onChange) {
       this.props.onChange(data);
     }
-    console.log(JSON.stringify(data));
   }
 
   /**
