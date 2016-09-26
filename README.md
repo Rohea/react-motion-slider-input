@@ -56,7 +56,7 @@ render() {
 
 ### Examples
 
-See examples folder.
+See example folder.
 
 ### FAQ
 
