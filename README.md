@@ -61,10 +61,13 @@ See examples folder.
 ### FAQ
 
 Q: A slider plugin, U serious?
+
 A: We figured world desperately needs yet another slider plugin. I mean, there are barely 5 for React already. That's way too few. Seriously though, this slider tries to provide some functionality that we felt is missing from the others.
 
 Q: It's ugly. Why?
+
 A: The idea is to include as little forced styles as possible to make it possible for you to create your own styles.
 
 Q: Why no tests?
+
 A: No good reason, we should definitely have some before developing this thing any further.
