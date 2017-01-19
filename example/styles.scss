@@ -14,23 +14,24 @@
 
 #range {
   .range-example {
+    padding: 0 2%;
     .ReactMotionSliderInput-Track {
       height: 4px;
-      width: 96%;
-      padding: 0 2%;
+      width: 100%;
       background-color: transparent;
     }
     .ReactMotionSliderInput-Track-Inner {
       height: 4px;
       background-color: #B2CEEA;
       border-radius: 4px;
-      position: relative;
-      float: left;
+      // position: relative;
+      // float: left;
       box-shadow: 0px 1px 1px rgba(21,50,79,0.3);
     }
     .ReactMotionSliderInput-Step {
       background-color: transparent;
-      width: 8.3%;
+      // width: 8.3%;
+      width: 20px;
       height: 20px;
       line-height: 20px;
       text-align: center;
@@ -74,9 +75,6 @@
       background: -webkit-radial-gradient(center, ellipse cover,  rgba(64,150,237,1) 0%,rgba(50,119,188,1) 100%);
       background: radial-gradient(ellipse at center,  rgba(64,150,237,1) 0%,rgba(50,119,188,1) 100%);
       filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4096ed', endColorstr='#3277bc',GradientType=1 );
-
-
-
       width: 20px;
       height: 20px;
       border-radius: 10px;

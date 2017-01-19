@@ -5,6 +5,7 @@ class Range extends React.Component {
   constructor(props) {
     super(props);
     this.onClick = this.onClick.bind(this);
+    this.element = null;
   }
 
   onClick(e) {
@@ -13,23 +14,31 @@ class Range extends React.Component {
     e.preventDefault();
   }
 
+  getElement() {
+    return this.element;
+  }
+
   render() {
     const className = 'ReactMotionSliderInput-Range' + ((this.props.className) ? ' ' + this.props.className : '');
+    const top = Math.round(this.props.top);
+    const left = Math.round(this.props.left);
+    const width = Math.round(this.props.width);
+    const height = Math.round(this.props.height);
     return (
       <Motion
-        ref='motion'
         defaultStyle={{ left: 0, top: 0, width: 0, height: 0 }}
         style={{
-          left: spring(this.props.left, this.props.spring),
-          top: spring(this.props.top, this.props.spring),
-          width: spring(this.props.width, this.props.spring),
-          height: spring(this.props.height, this.props.spring),
+          left: spring(left, this.props.spring),
+          top: spring(top, this.props.spring),
+          width: spring(width, this.props.spring),
+          height: spring(height, this.props.spring),
         }}
       >
         {value =>
           <span
-            ref='span'
+            ref={(c) => { this.element = c; }}
             onClick={this.onClick}
+            tabIndex={-1}
             style={{
               left: `${value.left}px`,
               top: `${value.top}px`,

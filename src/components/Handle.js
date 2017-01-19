@@ -10,7 +10,6 @@ class Handle extends React.Component {
       deltaX: 0,
       deltaY: 0,
     };
-    this.onClick = this.onClick.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseDown = this.onMouseDown.bind(this);
@@ -18,6 +17,8 @@ class Handle extends React.Component {
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
     this.onTouchCancel = this.onTouchCancel.bind(this);
+    this.inner = null; // ref
+    this.button = null; // ref
   }
 
   /* global document:false */
@@ -31,24 +32,18 @@ class Handle extends React.Component {
     }
   }
 
-  onClick(e) {
-    // Without this, the click will trigger event on Track
-    // and we end up having duplicate event
-    e.stopPropagation();
-    e.preventDefault();
-  }
-
   onMouseDown(e) {
     // only left mouse button
     if (e.button !== 0) return;
-
-    const rect = this.refs.motion.refs.button.getBoundingClientRect();
+    const rect = this.button.getBoundingClientRect();
+    console.log(rect);
+    console.log(e.clientX);
     const deltaX = e.clientX - rect.left;
     const deltaY = e.clientY - rect.top;
     this.setState({
       isDragging: true,
-      deltaX: deltaX,
-      deltaY: deltaY,
+      deltaX,
+      deltaY,
     });
     e.stopPropagation();
     e.preventDefault();
@@ -70,13 +65,13 @@ class Handle extends React.Component {
   }
 
   onTouchStart(e) {
-    const rect = this.refs.motion.refs.button.getBoundingClientRect();
+    const rect = this.button.getBoundingClientRect();
     const deltaX = e.touches[0].clientX - rect.left;
     const deltaY = e.touches[0].clientY - rect.top;
     this.setState({
       isDragging: true,
-      deltaX: deltaX,
-      deltaY: deltaY,
+      deltaX,
+      deltaY,
     });
     e.stopPropagation();
     e.preventDefault();
@@ -98,17 +93,31 @@ class Handle extends React.Component {
   }
 
   onTouchCancel(e) {
-    console.log('Touch cancelled. What should we do?');
+    // console.log('Touch cancelled. What should we do?');
+  }
+
+  getElement() {
+    return this.button;
   }
 
   render() {
+    const left = Math.round(this.props.left);
+    const top = Math.round(this.props.top);
     return (
-      <Motion ref='motion' defaultStyle={{ left: 0, top: 0 }} style={{ left: spring(this.props.left, this.props.spring), top: spring(this.props.top, this.props.spring) }}>
-
+      <Motion
+        ref={(c) => { this.motion = c; }}
+        defaultStyle={{ left: 0, top: 0 }}
+        style={{ left: spring(left, this.props.spring), top: spring(top, this.props.spring) }}
+      >
         {value =>
           <button
-            ref='button'
-            onClick={this.onClick}
+            ref={(c) => { this.button = c; }}
+            onClick={(e) => {
+              // Without this, the click will trigger event on Track
+              // and we end up having duplicate event
+              e.stopPropagation();
+              e.preventDefault();
+            }}
             onMouseDown={this.onMouseDown}
             onTouchStart={this.onTouchStart}
             onTouchMove={this.onTouchMove}
@@ -120,7 +129,9 @@ class Handle extends React.Component {
               display: 'block',
             }}
           >
-            <span className='ReactMotionSliderInput-Handle-Inner'>
+            <span
+              ref={(c) => { this.inner = c; }}
+              className='ReactMotionSliderInput-Handle-Inner'>
               {this.props.value}
             </span>
             <span className='ReactMotionSliderInput-Handle-Label'>
@@ -130,7 +141,6 @@ class Handle extends React.Component {
         }
 
       </Motion>
-
     );
   }
 }

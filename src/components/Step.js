@@ -4,12 +4,17 @@ class Step extends React.Component {
   constructor(props) {
     super(props);
     this.onClick = this.onClick.bind(this);
+    this.element = null;
   }
 
   onClick(e) {
     this.props.onClick(this.props.index);
     e.stopPropagation();
     e.preventDefault();
+  }
+
+  getElement() {
+    return this.element;
   }
 
   render() {
@@ -24,7 +29,7 @@ class Step extends React.Component {
       ((this.props.inRange !== null) ? ' ReactMotionSliderInput-in-range ReactMotionSliderInput-in-range-' + this.props.inRange : '') +
       ((this.props.className) ? ' ' + this.props.className : '');
     return (
-      <a ref='span' className={className} style={styles} onClick={this.onClick}>
+      <a ref={(c) => { this.element = c; }} tabIndex={-1} className={className} style={styles} onClick={this.onClick}>
         <span className='ReactMotionSliderInput-Step-Inner' />
         <span className='ReactMotionSliderInput-Step-Label'>{this.props.label}</span>
       </a>
