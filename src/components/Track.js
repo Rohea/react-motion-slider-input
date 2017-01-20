@@ -11,14 +11,7 @@ class Track extends React.Component {
   onClick(e) {
     this.props.onClick(e.clientX, e.clientY);
   }
-  /*
-  getOuterElement() {
-    return this.refs.track;
-  }
-  getInnerElement() {
-    return this.refs.inner;
-  }
-  */
+
   getElement() {
     return this.element;
   }

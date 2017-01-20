@@ -23,6 +23,7 @@
   height: 30px;
   text-align: center;
   cursor: pointer;
+  outline: none;
   &.ReactMotionSliderInput-in-range {
     background-color: rgba(50,50,50,0.7);
   }
@@ -39,6 +40,7 @@
   height: 20px;
   position: absolute;
   cursor: pointer;
+  outline: none;
 }
 
 .ReactMotionSliderInput.vertical {

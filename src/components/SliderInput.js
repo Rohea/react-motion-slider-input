@@ -692,7 +692,6 @@ class SliderInput extends React.Component {
   }
 
   render() {
-    // console.log(this.state.map.toJS());
     const classNames = 'ReactMotionSliderInput ' +
       (this.vertical() ? 'vertical' : 'horizontal') +
       ((this.props.className) ? ' ' + this.props.className : '');

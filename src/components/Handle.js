@@ -36,8 +36,6 @@ class Handle extends React.Component {
     // only left mouse button
     if (e.button !== 0) return;
     const rect = this.button.getBoundingClientRect();
-    console.log(rect);
-    console.log(e.clientX);
     const deltaX = e.clientX - rect.left;
     const deltaY = e.clientY - rect.top;
     this.setState({
