@@ -584,21 +584,45 @@ class SliderInput extends React.Component {
    * @param deltaX distance from click event x to handle's left border
    * @param deltaY distance from click event y to handle's top border
    */
-  updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY) {
+  updateMovingHandlePositionInState(handleIndex, eventX, eventY, deltaX, deltaY) {
     const containerStart = this.vertical() ? this.state.map.getIn(['container', 'top']) : this.state.map.getIn(['container', 'left']);
+    let map = this.state.map;
     // const trackStart = this.vertical() ? this.state.map.getIn(['track', 'top']) : this.state.map.getIn(['track', 'left']);
-    const handleLength = this.state.map.get('handleLength');
+    const handleLength = map.get('handleLength');
     const eventPos = this.vertical() ? eventY : eventX;
     const delta = this.vertical() ? deltaY : deltaX;
     // const trackPadding = trackStart - containerStart;
-    const handlePosition = (eventPos - delta - containerStart) + (handleLength / 2);
-    let map = this.state.map.withMutations((mp) => {
+    let handlePosition = (eventPos - delta - containerStart) + (handleLength / 2);
+
+    const trackLength = map.getIn(['track', 'length']);
+    const numSteps = map.get('steps').size;
+    const stepLength = trackLength / (numSteps - 1);
+
+    const trackStart = this.vertical() ? map.getIn(['track', 'top']) : map.getIn(['track', 'left']);
+    const trackPadding = trackStart - containerStart;
+
+    // Prevent running over next handle
+    if (map.hasIn(['handles', (handleIndex + 1)])) {
+      const nextHandle = map.getIn(['handles', (handleIndex + 1)]);
+      const nextHandlePosition = this.vertical() ? nextHandle.get('y') : nextHandle.get('x');
+      if (handlePosition > (nextHandlePosition - stepLength + trackPadding)) {
+        handlePosition = nextHandlePosition - stepLength + trackPadding;
+      }
+    }
+    // Prevent running over previous handle
+    if (handleIndex > 0 && map.hasIn(['handles', (handleIndex - 1)])) {
+      const prevHandle = map.getIn(['handles', (handleIndex - 1)]);
+      const prevHandlePosition = this.vertical() ? prevHandle.get('y') : prevHandle.get('x');
+      if (handlePosition < (prevHandlePosition + stepLength + trackPadding)) {
+        handlePosition = prevHandlePosition + stepLength + trackPadding;
+      }
+    }
+    map = map.withMutations((mp) => {
       mp.set('isHandleMoving', true)
-        .set('movingHandleIndex', index)
+        .set('movingHandleIndex', handleIndex)
         .set('movingHandlePosition', handlePosition);
     });
-
-    map = this.calculateMoving(map, index);
+    map = this.calculateMoving(map, handleIndex);
     this.setState({ map });
   }
 
