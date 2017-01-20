@@ -163,7 +163,7 @@ class SliderInput extends React.Component {
     this.steps = []; // refs array
     this.handles = []; // refs array
     // create initial state
-    this.state = this.mapPropsToLocalState(props);
+    this.state = { map: this.mapPropsToLocalState(props) };
   }
 
   /* global window:false */
@@ -175,7 +175,9 @@ class SliderInput extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    // this.setState(this.mapPropsToLocalState(newProps));
+    let map = this.mapPropsToLocalState(newProps);
+    map = this.calculate(map);
+    this.setState({ map });
   }
 
   componentWillUnmount() {
@@ -279,7 +281,7 @@ class SliderInput extends React.Component {
     map = map.set('handles', Immutable.fromJS(handles));
     const ranges = prepareRanges(props);
     map = map.set('ranges', Immutable.fromJS(ranges));
-    return { map };
+    return map;
   }
 
   calculateClosestValue(position) {
@@ -631,11 +633,17 @@ class SliderInput extends React.Component {
    */
   triggerChange(map) {
     const trackLength = map.getIn(['track', 'length']);
-
     // Build value for 3rd party code
     const handles = map.get('handles');
-    let data = {};
-    handles.map((handle) => {
+    // RETURN SIMPLE VALUE
+    if (!this.props.detailedValue && handles.size === 1) {
+      if (this.props.onChange) {
+        this.props.onChange(handles.getIn([0, 'value']));
+      }
+      return;
+    }
+    // RETURN COMPLEX VALUE
+    const data = handles.map((handle) => {
       // Find matching step
       let matchingStep = null;
       map.get('steps').map((step) => {
@@ -644,26 +652,23 @@ class SliderInput extends React.Component {
         }
         return step;
       });
-      const key = handle.get('id') ? handle.get('id') : handle.get('index');
-      data[key] = {
+      const item = {
+        id: handle.get('id') || null,
         value: handle.get('value'),
         position: (handle.get('position') / trackLength).toFixed(3),
-        step: {
-        },
+        step: {},
       };
       if (matchingStep) {
-        data[key].step = {
+        item.step = {
           id: matchingStep.get('id'),
           index: matchingStep.get('index'),
         };
       }
-      return handle;
+      return item;
     });
-    if (this.props.detailedValue !== true && handles.size === 1) {
-      data = handles.getIn([0, 'value']);
-    }
+
     if (this.props.onChange) {
-      this.props.onChange(data);
+      this.props.onChange(data.toJS());
     }
   }
 
