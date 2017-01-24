@@ -80,8 +80,9 @@ class Complex extends React.Component {
   }
 
   onComplexSliderChange(handles) {
-    const newHandles = this.state.handles.map((handle, i) => {
-      return Object.assign({}, handle, { value: handles[i].value });
+    console.log(handles);
+    const newHandles = this.state.handles.map((handle) => {
+      return Object.assign({}, handle, { value: handles[handle.id].value });
     });
     this.setState({ handles: newHandles });
   }

@@ -644,15 +644,9 @@ class SliderInput extends React.Component {
       return;
     }
     // RETURN COMPLEX VALUE
-    const data = handles.map((handle) => {
+    const data = handles.reduce((result, handle) => {
       // Find matching step
-      let matchingStep = null;
-      map.get('steps').map((step) => {
-        if (step.get('value') === handle.get('value')) {
-          matchingStep = step;
-        }
-        return step;
-      });
+      const matchingStep = map.get('steps').find((step) => (step.get('value') === handle.get('value')));
       const item = {
         id: handle.get('id') || null,
         value: handle.get('value'),
@@ -665,9 +659,8 @@ class SliderInput extends React.Component {
           index: matchingStep.get('index'),
         };
       }
-      return item;
-    });
-
+      return result.set(handle.get('id'), Immutable.fromJS(item));
+    }, Immutable.Map());
     if (this.props.onChange) {
       this.props.onChange(data.toJS());
     }
