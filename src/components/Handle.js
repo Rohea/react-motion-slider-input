@@ -119,6 +119,7 @@ class Handle extends React.Component {
             onMouseDown={this.onMouseDown}
             onTouchStart={this.onTouchStart}
             onTouchMove={this.onTouchMove}
+            onTouchEnd={this.onTouchEnd}
             className='ReactMotionSliderInput-Handle'
             style={{
               left: `${value.left}px`,

@@ -421,6 +421,7 @@ class SliderInput extends React.Component {
       if (stepCenter >= rangePosition && stepCenter <= (rangeLength + rangePosition)) {
         inRange = range.get('index');
       }
+      return null;
     });
     return step.set('inRange', inRange);
   }
@@ -498,7 +499,7 @@ class SliderInput extends React.Component {
     }
 
     const handleCenterGauge = trackGauge / 2;
-    const handlePositionLength = handleCenterLength - (handleLength / 2) + trackPadding;
+    const handlePositionLength = (handleCenterLength - (handleLength / 2)) + trackPadding;
     const handlePositionGauge = handleCenterGauge - (handleGauge / 2);
 
     if (this.vertical()) {
