@@ -5,8 +5,10 @@
     "jsx-quotes": ["error", "prefer-single"],
     "react/jsx-filename-extension": "off",
     "new-cap": [2, {
-        "capIsNewExceptions": ["Immutable.Map", "Immutable.Set", "Immutable.List"]
+        "capIsNewExceptions": ["Map", "Set", "List"]
     }],
+    "no-mixed-operators": "off",
+    "newline-per-chained-call": "off",
     "react/no-unused-prop-types": [2, { "customValidators": [], "skipShapeProps": true }]
   }
 }

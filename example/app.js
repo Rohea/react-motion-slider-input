@@ -8,9 +8,16 @@ import Complex from './Complex';
 require('../src/scss/SliderInput.scss');
 require('../example/styles.scss');
 
+const onChange = (val) => {
+  console.log('onChange called');
+  console.log(val);
+};
+const onMove = (val) => {
+  console.log('onMove called');
+  console.log(val);
+};
 
 class App extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -41,7 +48,7 @@ class App extends React.Component {
     let ranges = [];
     for (let i = 1; i <= 12; i++) {
       steps.push({
-        label: '' + i,
+        label: `${i}`,
         id: `step${i}`,
         value: i,
       });
@@ -81,6 +88,8 @@ class App extends React.Component {
           steps={steps}
           handles={handles}
           ranges={ranges}
+          onChange={onChange}
+          onMove={onMove}
           spring={{
             stiffness: 600,
             damping: 20, // how much spring goes back and forth
@@ -113,14 +122,7 @@ class App extends React.Component {
         fromHandle: 0,
       },
     ];
-    return (
-      <SliderInput
-        className='range-example'
-        steps={steps}
-        handles={handles}
-        ranges={ranges}
-      />
-    );
+    return <SliderInput className='range-example' steps={steps} handles={handles} ranges={ranges} />;
   }
 
   render() {
@@ -139,21 +141,21 @@ class App extends React.Component {
         <h1>Slider Input for React and React-Motion</h1>
 
         <div id='default' className='container'>
-          <SliderInput value={3} />
+          <SliderInput value={3} onChange={onChange} onMove={onMove} />
         </div>
 
         <div id='longrange' className='container'>
-          <SliderInput min={1} max={100} step={0.1} value={69.9} range />
+          <SliderInput min={1} max={100} step={0.1} value={69.9} range onChange={onChange} onMove={onMove} />
         </div>
 
         <div className='container'>
-          <SliderInput steps={steps} value={5} range />
+          <SliderInput steps={steps} value={5} range onChange={onChange} onMove={onMove} />
         </div>
         <div className='container'>
           {this.renderRange()}
         </div>
         <div className='container'>
-          <SliderInput steps={steps} value={6} range='above' />
+          <SliderInput steps={steps} value={6} range='above' onChange={onChange} onMove={onMove} />
         </div>
 
         {this.renderStyledRange()}

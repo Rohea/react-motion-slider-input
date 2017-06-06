@@ -19,7 +19,7 @@ class Range extends React.Component {
   }
 
   render() {
-    const className = 'ReactMotionSliderInput-Range' + ((this.props.className) ? ' ' + this.props.className : '');
+    const className = `ReactMotionSliderInput-Range${this.props.className ? ` ${this.props.className}` : ''}`;
     const top = Math.round(this.props.top);
     const left = Math.round(this.props.left);
     const width = Math.round(this.props.width);
@@ -34,10 +34,13 @@ class Range extends React.Component {
           height: spring(height, this.props.spring),
         }}
       >
-        {value =>
+        {value => (
           <span
-            ref={(c) => { this.element = c; }}
+            ref={(c) => {
+              this.element = c;
+            }}
             onClick={this.onClick}
+            role='button'
             tabIndex={-1}
             style={{
               left: `${value.left}px`,
@@ -49,7 +52,7 @@ class Range extends React.Component {
             }}
             className={className}
           />
-        }
+        )}
       </Motion>
     );
   }
