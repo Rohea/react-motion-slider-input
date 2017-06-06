@@ -21,6 +21,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      disabled: false,
       complexSlider: {
         handle1: 4,
         handle2: 11,
@@ -139,28 +140,32 @@ class App extends React.Component {
     return (
       <div>
         <h1>Slider Input for React and React-Motion</h1>
+        <p>
+          <input type='checkbox' checked={this.state.disabled} onClick={() => this.setState(prevState => ({ disabled: !prevState.disabled }))} />
+          Disabled
+        </p>
 
         <div id='default' className='container'>
-          <SliderInput value={3} onChange={onChange} onMove={onMove} />
+          <SliderInput value={3} onChange={onChange} onMove={onMove} disabled={this.state.disabled} />
         </div>
 
         <div id='longrange' className='container'>
-          <SliderInput min={1} max={100} step={0.1} value={69.9} range onChange={onChange} onMove={onMove} />
+          <SliderInput min={1} max={100} step={0.1} value={69.9} range onChange={onChange} onMove={onMove} disabled={this.state.disabled} />
         </div>
 
         <div className='container'>
-          <SliderInput steps={steps} value={5} range onChange={onChange} onMove={onMove} />
+          <SliderInput steps={steps} value={5} range onChange={onChange} onMove={onMove} disabled={this.state.disabled} />
         </div>
         <div className='container'>
           {this.renderRange()}
         </div>
         <div className='container'>
-          <SliderInput steps={steps} value={6} range='above' onChange={onChange} onMove={onMove} />
+          <SliderInput steps={steps} value={6} range='above' onChange={onChange} onMove={onMove} disabled={this.state.disabled} />
         </div>
 
         {this.renderStyledRange()}
 
-        <Complex />
+        <Complex disabled={this.state.disabled} />
 
         <div className='container vertical'>
           <SliderInput orientation='vertical' value={3} />

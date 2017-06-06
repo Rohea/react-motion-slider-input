@@ -11,7 +11,7 @@ const prepareState = () => {
     if (i < 8) color = 'green';
     else if (i > 14) color = 'red';
     steps.push({
-      label: '' + i,
+      label: `${i}`,
       id: `step${i}`,
       value: i,
       className: `step-${color}`,
@@ -69,9 +69,7 @@ const prepareState = () => {
   return { handles, ranges, steps };
 };
 
-
 class Complex extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = prepareState();
@@ -81,9 +79,7 @@ class Complex extends React.Component {
 
   onComplexSliderChange(handles) {
     console.log(handles);
-    const newHandles = this.state.handles.map((handle) => {
-      return Object.assign({}, handle, { value: handles[handle.id].value });
-    });
+    const newHandles = this.state.handles.map(handle => Object.assign({}, handle, { value: handles[handle.id].value }));
     this.setState({ handles: newHandles });
   }
 
@@ -101,9 +97,7 @@ class Complex extends React.Component {
           <li>Transparent handles with borders</li>
         </ul>
         <label className='preview' htmlFor='preview'>
-          {this.state.handles.map((handle) => (
-            <span key={handle.id}>{handle.id}: <strong>{handle.value}</strong>&nbsp; &nbsp;</span>
-          ))}
+          {this.state.handles.map(handle => <span key={handle.id}>{handle.id}: <strong>{handle.value}</strong>&nbsp; &nbsp;</span>)}
         </label>
         <SliderInput
           className='complex-example'
@@ -111,6 +105,7 @@ class Complex extends React.Component {
           handles={this.state.handles}
           ranges={this.state.ranges}
           onChange={this.onComplexSliderChange}
+          disabled={this.props.disabled}
         />
         <button onClick={this.onResetClick}>Reset Handles</button>
       </div>

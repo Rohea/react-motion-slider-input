@@ -244,10 +244,12 @@ class SliderInput extends Component {
   }
 
   onHandleCatch(index, eventX, eventY, deltaX, deltaY) {
+    if (this.props.disabled) return;
     this.updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY);
   }
 
   onHandleMove(index, eventX, eventY, deltaX, deltaY) {
+    if (this.props.disabled) return;
     this.updateMovingHandlePositionInState(index, eventX, eventY, deltaX, deltaY);
   }
 
@@ -263,6 +265,7 @@ class SliderInput extends Component {
   }
 
   onTrackClick(eventX, eventY) {
+    if (this.props.disabled) return;
     let map = this.state.map;
     const trackStart = this.vertical() ? this.state.map.getIn(['track', 'top']) : this.state.map.getIn(['track', 'left']);
     // const trackLength = map.getIn(['track', 'length']);
@@ -289,6 +292,7 @@ class SliderInput extends Component {
   }
 
   onStepClick(stepIndex) {
+    if (this.props.disabled) return;
     let map = this.state.map;
     const step = map.getIn(['steps', stepIndex]);
     const stepPos = this.vertical() ? step.get('y') : step.get('x');
@@ -627,6 +631,7 @@ class SliderInput extends Component {
    * Notify 3rd party code by calling onChange
    */
   triggerCallback(map, callback) {
+    if (this.props.disabled) return;
     const trackLength = map.getIn(['track', 'length']);
     // Build value for 3rd party code
     const handles = map.get('handles');
@@ -685,7 +690,7 @@ class SliderInput extends Component {
   }
 
   render() {
-    const classNames = `ReactMotionSliderInput ${this.vertical() ? 'vertical' : 'horizontal'}${this.props.className ? ` ${this.props.className}` : ''}`;
+    const classNames = `ReactMotionSliderInput ${this.vertical() ? 'vertical' : 'horizontal'}${this.props.disabled ? ' disabled' : ''}${this.props.className ? ` ${this.props.className}` : ''}`;
     return (
       <div
         className={classNames}
@@ -818,6 +823,7 @@ SliderInput.propTypes = {
   onMove: PropTypes.func,
   onChange: PropTypes.func,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
   // React-motion spring props
   spring: PropTypes.shape({
     stiffness: PropTypes.number,

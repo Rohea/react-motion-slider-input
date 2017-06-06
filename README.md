@@ -51,6 +51,7 @@ render() {
 | ranges        | arrayOf(object)         | null                                             | provide an array of objects of shape `{id: string, label: string, fromHandle: number, className: string, includeHandles: bool}`                                                                                         |
 | onChange      | func                    | undefined                                        | callback when value changes                                                                                                                                                                                             |
 | onMove        | func                    | undefined                                        | callback when handle is being moved                                                                                                                                                                                     |
+| disabled      | bool                    | false                                            | prevent moving any handles of the slider                                                                                                                                                                                |
 | className     | string                  | null                                             | define a root class for the slider element for custom css styling                                                                                                                                                       |
 | spring        | object                  | { stiffness: 1000, damping: 40, precision: 0.01} | override react-motion spring config                                                                                                                                                                                     |
 | detailedValue | bool                    | false                                            | return a detailed data object in `onChange` for simple single-value sliders to enable consistent behaviour with complex sliders that return a detailed value automatically                                              |
@@ -65,7 +66,7 @@ Q: A slider plugin, U serious?
 
 A: We figured world desperately needs yet another slider plugin. I mean, there are barely 5 for React already. That's way too few. Seriously though, this slider tries to provide some functionality that we felt is missing from the others.
 
-Q: It's ugly. Why?
+Q: It looks ugly. Why?
 
 A: The idea is to include as little forced styles as possible to make it possible for you to create your own styles.
 

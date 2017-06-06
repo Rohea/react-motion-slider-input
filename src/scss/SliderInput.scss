@@ -64,5 +64,10 @@
     background-color: #666666;
     width: 20px;
   }
+}
 
+.ReactMotionSliderInput.disabled {
+  .ReactMotionSliderInput-Handle {
+    background-color: rgba(0,0,0,0.3);
+  }
 }
