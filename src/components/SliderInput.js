@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { Map, fromJS } from 'immutable';
+import { List, fromJS } from 'immutable';
 import Track from './Track';
 import Step from './Step';
 import Handle from './Handle';
@@ -643,23 +643,25 @@ class SliderInput extends Component {
       return;
     }
     // RETURN COMPLEX VALUE
-    const data = handles.reduce((result, handle) => {
-      // Find matching step
-      const matchingStep = map.get('steps').find(step => step.get('value') === handle.get('value'));
-      const item = {
-        id: handle.get('id') || null,
-        value: handle.get('value'),
-        position: (handle.get('position') / trackLength).toFixed(3),
-        step: {},
-      };
-      if (matchingStep) {
-        item.step = {
-          id: matchingStep.get('id'),
-          index: matchingStep.get('index'),
+    const data = handles
+      .reduce((result, handle, index) => {
+        // Find matching step
+        const matchingStep = map.get('steps').find(step => step.get('value') === handle.get('value'));
+        const item = {
+          id: handle.get('id') || null,
+          value: handle.get('value'),
+          position: (handle.get('position') / trackLength).toFixed(3),
+          step: {},
         };
-      }
-      return result.set(handle.get('id'), fromJS(item));
-    }, Map());
+        if (matchingStep) {
+          item.step = {
+            id: matchingStep.get('id'),
+            index: matchingStep.get('index'),
+          };
+        }
+        return result.set(index, fromJS(item));
+      }, List())
+      .toList();
     if (callback) {
       callback(data.toJS());
     }

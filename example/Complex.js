@@ -1,12 +1,12 @@
 // Import stuff
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 
 import SliderInput from '../src/components/SliderInput';
 
 const prepareState = () => {
   // Comples steps and ranges
   const steps = [];
-  for (let i = 1; i < 21; i++) {
+  for (let i = 1; i < 21; i += 1) {
     let color = 'yellow';
     if (i < 8) color = 'green';
     else if (i > 14) color = 'red';
@@ -69,7 +69,7 @@ const prepareState = () => {
   return { handles, ranges, steps };
 };
 
-class Complex extends React.Component {
+class Complex extends Component {
   constructor(props) {
     super(props);
     this.state = prepareState();
@@ -79,8 +79,8 @@ class Complex extends React.Component {
 
   onComplexSliderChange(handles) {
     console.log(handles);
-    const newHandles = this.state.handles.map(handle => Object.assign({}, handle, { value: handles[handle.id].value }));
-    this.setState({ handles: newHandles });
+    // const newHandles = this.state.handles.map(handle => Object.assign({}, handle, { value: handles[handle.id].value }));
+    this.setState({ handles });
   }
 
   onResetClick() {
@@ -112,4 +112,7 @@ class Complex extends React.Component {
     );
   }
 }
+Complex.propTypes = {
+  disabled: PropTypes.bool,
+};
 export default Complex;
