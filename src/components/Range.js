@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Motion, spring } from 'react-motion';
 
@@ -58,16 +59,16 @@ class Range extends React.Component {
   }
 }
 Range.propTypes = {
-  left: React.PropTypes.number.isRequired,
-  top: React.PropTypes.number.isRequired,
-  width: React.PropTypes.number.isRequired,
-  height: React.PropTypes.number.isRequired,
-  onClick: React.PropTypes.func.isRequired,
-  className: React.PropTypes.string,
-  spring: React.PropTypes.shape({
-    stiffness: React.PropTypes.number,
-    damping: React.PropTypes.number,
-    precision: React.PropTypes.number,
+  left: PropTypes.number.isRequired,
+  top: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  spring: PropTypes.shape({
+    stiffness: PropTypes.number,
+    damping: PropTypes.number,
+    precision: PropTypes.number,
   }).isRequired,
 };
 export default Range;

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 class Track extends React.Component {
@@ -32,10 +33,10 @@ class Track extends React.Component {
   }
 }
 Track.propTypes = {
-  onClick: React.PropTypes.func.isRequired,
-  orientation: React.PropTypes.string.isRequired,
-  handleLength: React.PropTypes.number.isRequired,
-  children: React.PropTypes.node,
+  onClick: PropTypes.func.isRequired,
+  orientation: PropTypes.string.isRequired,
+  handleLength: PropTypes.number.isRequired,
+  children: PropTypes.node,
 };
 
 

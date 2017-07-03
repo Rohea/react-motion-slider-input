@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 // Import stuff
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 
 import SliderInput from '../src/components/SliderInput';
 

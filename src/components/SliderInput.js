@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { List, fromJS } from 'immutable';
 import Track from './Track';
 import Step from './Step';

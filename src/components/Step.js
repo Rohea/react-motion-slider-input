@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 class Step extends React.Component {
@@ -37,12 +38,12 @@ class Step extends React.Component {
   }
 }
 Step.propTypes = {
-  index: React.PropTypes.number.isRequired,
-  left: React.PropTypes.number.isRequired,
-  top: React.PropTypes.number.isRequired,
-  onClick: React.PropTypes.func.isRequired,
-  label: React.PropTypes.string,
-  inRange: React.PropTypes.number,
-  className: React.PropTypes.string,
+  index: PropTypes.number.isRequired,
+  left: PropTypes.number.isRequired,
+  top: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
+  label: PropTypes.string,
+  inRange: PropTypes.number,
+  className: PropTypes.string,
 };
 export default Step;

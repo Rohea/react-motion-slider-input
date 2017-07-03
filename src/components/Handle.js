@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Motion, spring } from 'react-motion';
 
@@ -144,21 +145,21 @@ class Handle extends React.Component {
   }
 }
 Handle.propTypes = {
-  index: React.PropTypes.number.isRequired,
-  value: React.PropTypes.oneOfType([
-    React.PropTypes.string,
-    React.PropTypes.number,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
   ]),
-  top: React.PropTypes.number.isRequired,
-  left: React.PropTypes.number.isRequired,
-  onCatch: React.PropTypes.func.isRequired,
-  onMove: React.PropTypes.func.isRequired,
-  onRelease: React.PropTypes.func.isRequired,
+  top: PropTypes.number.isRequired,
+  left: PropTypes.number.isRequired,
+  onCatch: PropTypes.func.isRequired,
+  onMove: PropTypes.func.isRequired,
+  onRelease: PropTypes.func.isRequired,
   // React-motion spring config
-  spring: React.PropTypes.shape({
-    stiffness: React.PropTypes.number,
-    damping: React.PropTypes.number,
-    precision: React.PropTypes.number,
+  spring: PropTypes.shape({
+    stiffness: PropTypes.number,
+    damping: PropTypes.number,
+    precision: PropTypes.number,
   }).isRequired,
 };
 
