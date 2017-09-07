@@ -120,7 +120,7 @@ const prepareHandles = (props) => {
   let handles = [defaultHandle];
   if (props.handles && props.handles.length > 0) {
     handles = props.handles.map((data, i) => Object.assign({}, defaultHandle, data, { index: i }));
-  } else if (props.value) {
+  } else if (props.value || props.value === 0) {
     handles[0].value = props.value;
   }
   return handles;

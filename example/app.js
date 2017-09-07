@@ -28,6 +28,7 @@ class App extends React.Component {
         handle3: 14,
         handle4: 18,
       },
+      zeroincluded: 3,
     };
   }
 
@@ -47,7 +48,7 @@ class App extends React.Component {
     const steps = [];
     let handles = [];
     let ranges = [];
-    for (let i = 1; i <= 12; i++) {
+    for (let i = 0; i <= 12; i++) {
       steps.push({
         label: `${i}`,
         id: `step${i}`,
@@ -103,7 +104,7 @@ class App extends React.Component {
 
   renderRange() {
     const steps = [];
-    for (let i = 1; i <= 10; i++) {
+    for (let i = -2; i <= 10; i++) {
       steps.push({
         label: `${i}`,
         id: `step${i}`,
@@ -153,8 +154,18 @@ class App extends React.Component {
           <SliderInput min={1} max={100} step={0.1} value={69.9} range onChange={onChange} onMove={onMove} disabled={this.state.disabled} />
         </div>
 
-        <div className='container'>
-          <SliderInput steps={steps} value={5} range onChange={onChange} onMove={onMove} disabled={this.state.disabled} />
+        <div id='zeroincluded' className='container'>
+          <SliderInput
+            steps={steps}
+            value={this.state.zeroincluded}
+            range
+            onChange={(value) => {
+              this.setState({ zeroincluded: value });
+              onChange(value);
+            }}
+            onMove={onMove}
+            disabled={this.state.disabled}
+          />
         </div>
         <div className='container'>
           {this.renderRange()}
