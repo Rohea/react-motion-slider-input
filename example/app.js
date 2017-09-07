@@ -130,7 +130,7 @@ class App extends React.Component {
     const steps = [];
 
     // Manual step generation with shorthand single value
-    for (let i = 1; i < 11; i++) {
+    for (let i = -3; i < 10; i++) {
       steps.push({
         label: `S${i}`,
         value: i,
